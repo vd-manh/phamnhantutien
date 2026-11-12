@@ -1,0 +1,36 @@
+{
+ "tt": 1,
+ "name": "dot_pha_hoa_than",
+ "w": 239,
+ "h": 228,
+ "frames": 120,
+ "columns": 17,
+ "fps": 24.0,
+ "speed": 1.0,
+ "loop": false,
+ "pivot": [
+  118,
+  195
+ ],
+ "target": null,
+ "states": {
+  "gather": [
+   0.0,
+   1.5
+  ],
+  "crack": [
+   1.5,
+   1.917
+  ],
+  "burst": [
+   1.917,
+   3.5
+  ],
+  "dissolve": [
+   3.5,
+   5.0
+  ]
+ },
+ "hits": [],
+ "duration": 5.0
+}

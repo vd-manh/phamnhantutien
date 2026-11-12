@@ -1,0 +1,20 @@
+{
+ "tt": 1,
+ "name": "px_lightning_strike_g",
+ "w": 232,
+ "h": 264,
+ "frames": 91,
+ "columns": 17,
+ "fps": 30.0,
+ "speed": 1.0,
+ "loop": false,
+ "pivot": [
+  117,
+  228
+ ],
+ "target": null,
+ "states": {},
+ "hits": [],
+ "duration": 3.033,
+ "source": "pixelfx lightning/lightning-strike (MIT, github.com/patch-gg/pixelfx), đổi màu hue 150.0"
+}

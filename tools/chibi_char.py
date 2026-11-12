@@ -1,0 +1,908 @@
+"""Nhân vật thiết kế riêng, vẽ hoàn toàn bằng code theo khung xương 2.5D (không sửa từ sprite có sẵn).
+
+Kiểu dáng = giới tính (m/f) x tông môn (kiem, phap, quy, vo, nho) x cảnh giới (0..5).
+- Đầu là khối cầu: mặt, tóc, tai, mắt nằm trên bề mặt khối cầu -> xoay 8 hướng nhất quán.
+- Thân áo là khối trụ elip; cổ chéo, đai, vạt áo khoác, viền đặt theo toạ độ bề mặt; đổ bóng theo pháp tuyến.
+- Tay, chân là các khớp; binh khí gắn vào bàn tay theo hướng cẳng tay.
+Cảnh giới càng cao: viền màu (1+), áo khoác ngoài dài (2+), áo choàng + giáp vai (3+),
+mũ miện / trâm + dải lụa bay (4+), vầng hào quang (5). Binh khí đổi chất liệu theo cảnh giới.
+
+Khung giống nhân vật beanfx: ô 144x128, điểm chân (72, 100), 8 hướng, các động tác
+idle / run / cast / attack1 / attack2 / attack3 / hurt / dead.
+
+Chạy:
+  python tools/chibi_char.py --preview <thư_mục>     # bảng xem thử
+  python tools/chibi_char.py --build-all              # xuất 60 bộ vào assets/casters/chibi/<tông>_<m|f><cảnh giới>/
+"""
+import argparse
+import colorsys
+import json
+import math
+import os
+
+import numpy as np
+from PIL import Image
+
+S = 1                                   # điểm ảnh trên mỗi đơn vị thế giới (2 = bản chi tiết gấp đôi)
+W, H, PX, PY = 144, 128, 72, 100
+_ys, _xs = np.mgrid[0:H, 0:W]
+X = _xs + 0.5 - PX
+Y = _ys + 0.5 - PY
+
+
+def set_scale(s):
+    """Vẽ ở độ phân giải s lần: mọi hình học vẫn tính theo đơn vị thế giới, chỉ lấy mẫu dày hơn."""
+    global S, W, H, PX, PY, X, Y
+    S = s
+    W, H, PX, PY = 144 * s, 128 * s, 72 * s, 100 * s
+    ys, xs = np.mgrid[0:H, 0:W]
+    X = (xs + 0.5 - PX) / s
+    Y = (ys + 0.5 - PY) / s
+
+
+def snap(v):
+    return round(v * S) / S
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OUT_DIR = os.path.join(ROOT, "assets", "casters", "chibi")
+
+MATS = ["skin", "hair", "tunic", "outer", "inner", "trim", "sash", "pants", "wrap", "shoe", "cord", "eye", "blush",
+        "metal", "wood", "gem", "cloth", "mantle", "halo", "paper", "lip"]
+M = {n: i for i, n in enumerate(MATS)}
+LIGHT = np.array([-0.55, -0.5, 0.68]) / np.linalg.norm([-0.55, -0.5, 0.68])
+DIRS8 = ["east", "south-east", "south", "south-west", "west", "north-west", "north", "north-east"]
+YAW = {"south": 0, "south-east": 45, "east": 90, "north-east": 135, "north": 180}
+MIRROR = {"west": "east", "south-west": "south-east", "north-west": "north-east"}
+SECTS = ["kiem", "phap", "quy", "vo", "nho"]
+WEAPON = {"kiem": "sword", "phap": "staff", "quy": "banner", "vo": "fists", "nho": "brush"}
+
+
+# ---------------------------------------------------------------- colours
+def hexrgb(c):
+    return tuple(int(c[i:i + 2], 16) for i in (1, 3, 5))
+
+
+def tohex(rgb):
+    return "#%02x%02x%02x" % tuple(max(0, min(255, round(v * 255))) for v in rgb)
+
+
+def ramp(base):
+    """4 tones (outline, shadow, base, light) from one colour, hue-shifted cool in shadow, warm in light."""
+    r, g, b = (v / 255 for v in hexrgb(base))
+    h, l, s = colorsys.rgb_to_hls(r, g, b)
+
+    def toward(h0, target, k):
+        d = ((target - h0 + 0.5) % 1.0) - 0.5
+        return (h0 + d * k) % 1.0
+
+    out = colorsys.hls_to_rgb(toward(h, 0.68, 0.25), max(0.04, l * 0.32), min(1, s * 0.9 + 0.08))
+    sh = colorsys.hls_to_rgb(toward(h, 0.68, 0.1), l * 0.72, min(1, s * 1.05))
+    li = colorsys.hls_to_rgb(toward(h, 0.14, 0.08), l + (1 - l) * 0.38, s * 0.85)
+    return [tohex(out), tohex(sh), tohex((r, g, b)), tohex(li)]
+
+
+TIER = ["#8a8f98", "#b47c3c", "#dfe4ee", "#6fd6a6", "#ffd04a", "#eef8ff"]
+GEM = ["#7a8a9a", "#c87a3a", "#9fdcff", "#5affb0", "#ffe07a", "#ffffff"]
+
+# per sect, per realm: tunic (inner robe), outer (2+), trim (1+), sash, pants, mantle (3+), ribbon (4+), halo (5)
+THEMES = {
+    "kiem": [
+        dict(tunic="#7d8fa8", sash="#3b4a63", pants="#2c3345"),
+        dict(tunic="#a9c7e8", trim="#f2f6fb", sash="#2f6fb0", pants="#3a4a66"),
+        dict(tunic="#9cc4ec", outer="#eef3f9", trim="#3f86d4", sash="#2a5fa0", pants="#2f3c58"),
+        dict(tunic="#9cc4ec", outer="#f0f4fa", trim="#4aa8ff", sash="#2a5fa0", pants="#2f3c58", mantle="#b8c8dc"),
+        dict(tunic="#bfe0ff", outer="#f6f8fc", trim="#e8c25a", sash="#2a5fa0", pants="#2f3c58", mantle="#c9d6e6", ribbon="#7fc8ff"),
+        dict(tunic="#cfe8ff", outer="#ffffff", trim="#ffd76a", sash="#3a78c8", pants="#3a4a70", mantle="#e6eef8", ribbon="#bfe6ff", halo="#ffe9a0"),
+    ],
+    "phap": [
+        dict(tunic="#8a7f74", sash="#5a4a7a", pants="#3a3446"),
+        dict(tunic="#a99ac8", trim="#efe6ff", sash="#5b3f96", pants="#3d3456"),
+        dict(tunic="#c9b8ec", outer="#6a4aa8", trim="#e8c25a", sash="#3c2a6e", pants="#2e2644"),
+        dict(tunic="#c9b8ec", outer="#5a3a98", trim="#ffd76a", sash="#3c2a6e", pants="#2e2644", mantle="#3a2a66"),
+        dict(tunic="#e9ddff", outer="#4a2a8a", trim="#ffd76a", sash="#2a1a5a", pants="#241c3c", mantle="#2c1e58", ribbon="#c8a8ff"),
+        dict(tunic="#b8c8ff", outer="#24184e", trim="#ffe9a0", sash="#3a2a8a", pants="#1c1838", mantle="#16103a", ribbon="#9fd0ff", halo="#c8b8ff"),
+    ],
+    "quy": [
+        dict(tunic="#5a5660", sash="#6a2a2e", pants="#2a2830"),
+        dict(tunic="#3c3842", trim="#a8323a", sash="#7a1a22", pants="#22202a"),
+        dict(tunic="#8a1a24", outer="#26222c", trim="#c8323a", sash="#4a0e14", pants="#1a1820"),
+        dict(tunic="#8a1a24", outer="#201c26", trim="#d8ccb0", sash="#4a0e14", pants="#1a1820", mantle="#16141c"),
+        dict(tunic="#b0202c", outer="#1a1418", trim="#d8b45a", sash="#3a0a10", pants="#16141a", mantle="#120e14", ribbon="#c8323a"),
+        dict(tunic="#ff3a4a", outer="#0e0a12", trim="#ff8a5a", sash="#5a0a14", pants="#100c14", mantle="#0a0810", ribbon="#ff4a5a", halo="#ff5a6a"),
+    ],
+    "vo": [
+        dict(tunic="#d9c69c", sash="#2c8680", pants="#363849"),
+        dict(tunic="#b0763a", trim="#f0d090", sash="#5a2a14", pants="#3a2a22"),
+        dict(tunic="#e8d8b0", outer="#c8501e", trim="#ffcf6a", sash="#3a1a0a", pants="#2a2028"),
+        dict(tunic="#e8d8b0", outer="#b4401a", trim="#ffd76a", sash="#3a1a0a", pants="#2a2028", mantle="#7a2414"),
+        dict(tunic="#fff0c8", outer="#e0a02a", trim="#ffffff", sash="#7a3a0a", pants="#3a2414", mantle="#a8601a", ribbon="#ffb04a"),
+        dict(tunic="#ffd76a", outer="#fff4d8", trim="#ffb04a", sash="#c8701a", pants="#5a3a1a", mantle="#ffe6b0", ribbon="#ffe08a", halo="#ffe08a"),
+    ],
+    "nho": [
+        dict(tunic="#c8c8c0", sash="#4a4a50", pants="#3a3a40"),
+        dict(tunic="#ecece6", trim="#2a2a30", sash="#2a2a30", pants="#2e2e34"),
+        dict(tunic="#f6f6f2", outer="#2a2a32", trim="#f0f0ea", sash="#5aa07a", pants="#22222a"),
+        dict(tunic="#f6f6f2", outer="#24242c", trim="#9ad0b0", sash="#5aa07a", pants="#22222a", mantle="#1a1a20"),
+        dict(tunic="#1e1e26", outer="#f8f8f4", trim="#5ab088", sash="#2a2a32", pants="#2a2a32", mantle="#e8e8e2", ribbon="#2a2a32"),
+        dict(tunic="#e8f6ee", outer="#ffffff", trim="#2a2a30", sash="#5ab088", pants="#3a3a44", mantle="#f4f4ee", ribbon="#9ad0b0", halo="#c8f0dc"),
+    ],
+}
+
+
+def style(sect, gender, realm):
+    t = dict(THEMES[sect][realm])
+    pal = {
+        "skin": ["#5e2e24", "#c27658", "#efb08a", "#ffd9be"],
+        "hair": ["#08070e", "#151424", "#26243c", "#45426a"] if gender == "m" else ["#0a070c", "#1c1422", "#2e2236", "#55405e"],
+        "eye": ["#130e18", "#43261a", "#86502f", "#ffffff"],
+        "blush": ["#c86a5a", "#e8907a", "#f0a08a", "#f0a08a"],
+        "lip": ["#7a2a2a", "#b84a4a", "#d86a64", "#e88a80"],
+        "cord": ramp("#c43036"),
+        "inner": ramp("#ece8de"),
+        "shoe": ramp("#4c311f"),
+        "wood": ramp("#5a3a24"),
+        "paper": ramp("#e6d29a"),
+    }
+    for k in ("tunic", "sash", "pants"):
+        pal[k] = ramp(t[k])
+    pal["outer"] = ramp(t.get("outer", t["tunic"]))
+    pal["trim"] = ramp(t.get("trim", "#5a4a3a"))
+    pal["mantle"] = ramp(t.get("mantle", t.get("outer", t["tunic"])))
+    pal["cloth"] = ramp(t.get("ribbon", t.get("trim", t["sash"])))
+    pal["halo"] = ramp(t.get("halo", "#ffe9a0"))
+    pal["metal"] = ramp(TIER[realm])
+    pal["gem"] = ramp(GEM[realm])
+    pal["wrap"] = ramp(TIER[realm]) if sect == "vo" else ramp("#bcaa86" if realm == 0 else t.get("trim", "#bcaa86"))
+    if sect == "quy":
+        pal["cloth"] = ramp(["#3a3438", "#5a1a1e", "#7a1a22", "#2a1a1e", "#8a1a24", "#b0202c"][realm])
+    return dict(sect=sect, gender=gender, realm=realm, pal=pal, weapon=WEAPON[sect],
+                trim="trim" in t, outer="outer" in t, mantle="mantle" in t, ribbon="ribbon" in t, halo="halo" in t,
+                crown=realm >= 4)
+
+
+# ---------------------------------------------------------------- shapes
+def ell(cx, cy, rx, ry):
+    return ((X - cx) / rx) ** 2 + ((Y - cy) / ry) ** 2 <= 1
+
+
+def taper(p0, p1, r0, r1):
+    (x0, y0), (x1, y1) = p0[:2], p1[:2]
+    dx, dy = x1 - x0, y1 - y0
+    l2 = dx * dx + dy * dy or 1e-9
+    t = np.clip(((X - x0) * dx + (Y - y0) * dy) / l2, 0, 1)
+    return np.hypot(X - x0 - t * dx, Y - y0 - t * dy) <= r0 + (r1 - r0) * t
+
+
+def polyline(pts, r):
+    m = np.zeros((H, W), bool)
+    for a, b in zip(pts[:-1], pts[1:]):
+        m |= taper(a, b, r, r)
+    return m
+
+
+def poly(pts):
+    pts = np.asarray(pts, float)
+    inside = np.zeros(X.shape, bool)
+    n = len(pts)
+    for i in range(n):
+        x0, y0 = pts[i]
+        x1, y1 = pts[(i + 1) % n]
+        cond = (y0 > Y) != (y1 > Y)
+        xint = (x1 - x0) * (Y - y0) / (y1 - y0 + 1e-12) + x0
+        inside ^= cond & (X < xint)
+    return inside
+
+
+def tone_from_normal(nx, ny, nz):
+    d = nx * LIGHT[0] + ny * LIGHT[1] + nz * LIGHT[2]
+    return np.where(d > 0.62, 3, np.where(d > 0.12, 2, 1))
+
+
+def hsh(i, s=0):
+    v = math.sin(i * 12.9898 + s * 78.233) * 43758.5453
+    return v - math.floor(v)
+
+
+# ---------------------------------------------------------------- canvas
+class Canvas:
+    def __init__(self):
+        self.pid = np.zeros((H, W), int)
+        self.mat = np.full((H, W), -1)
+        self.tone = np.full((H, W), -1)
+        self.shade = {}
+        self.n = 0
+
+    def add(self, mask, mat, tone=None, shade=True):
+        self.n += 1
+        self.pid[mask] = self.n
+        self.mat[mask] = mat[mask] if isinstance(mat, np.ndarray) else M[mat]
+        if tone is None:
+            self.tone[mask] = -1
+        elif np.ndim(tone) == 0:
+            self.tone[mask] = tone
+        else:
+            self.tone[mask] = tone[mask]
+        self.shade[self.n] = shade and tone is None
+
+    def render(self, pal_dict):
+        pal = [[hexrgb(c) for c in pal_dict[n]] for n in MATS]
+        pid, mat = self.pid, self.mat
+        on = mat >= 0
+
+        def nb(a, dx, dy, fill):
+            out = np.full(a.shape, fill, a.dtype)
+            ys = slice(max(dy, 0), H + min(dy, 0)); ys2 = slice(max(-dy, 0), H + min(-dy, 0))
+            xs = slice(max(dx, 0), W + min(dx, 0)); xs2 = slice(max(-dx, 0), W + min(-dx, 0))
+            out[ys2, xs2] = a[ys, xs]
+            return out
+
+        up, lf, dn, rt = nb(pid, 0, -1, 0), nb(pid, -1, 0, 0), nb(pid, 0, 1, 0), nb(pid, 1, 0, 0)
+        auto = np.full((H, W), 2)
+        auto[(dn != pid) | (rt != pid)] = 1
+        auto[(up != pid) | (lf != pid)] = 3
+        shaded = np.zeros((H, W), bool)
+        for k, v in self.shade.items():
+            if v:
+                shaded |= pid == k
+        t = np.where(self.tone >= 0, self.tone, np.where(shaded, auto, 2))
+        for d in ((0, -1), (-1, 0), (0, 1), (1, 0)):
+            npid, nmat = nb(pid, *d, 0), nb(mat, *d, -1)
+            t[on & (npid > pid) & (nmat == mat) & (mat != M["eye"])] = 0
+        img = np.zeros((H, W, 4), np.uint8)
+        for mi in range(len(MATS)):
+            for ti in range(4):
+                sel = on & (mat == mi) & (t == ti)
+                if sel.any():
+                    img[sel, :3] = pal[mi][ti]
+                    img[sel, 3] = 255
+        for d in ((0, -1), (-1, 0), (0, 1), (1, 0)):
+            nmat = nb(mat, *d, -1)
+            edge = ~on & (nmat >= 0) & (img[..., 3] == 0)
+            for mi in range(len(MATS)):
+                sel = edge & (nmat == mi)
+                if sel.any():
+                    img[sel, :3] = pal[mi][0]
+                    img[sel, 3] = 255
+        return img
+
+
+# ---------------------------------------------------------------- skeleton
+class Rig:
+    def __init__(self, yaw_deg, cx=0.0):
+        self.th = math.radians(yaw_deg)
+        self.c, self.s = math.cos(self.th), math.sin(self.th)
+        self.cx = cx
+
+    def P(self, lx, y, lz):
+        return np.array([self.cx + lx * self.c + lz * self.s, y, -lx * self.s + lz * self.c])
+
+
+def limb_dir(pitch, side):
+    return np.array([math.sin(side), math.cos(pitch) * math.cos(side), math.sin(pitch) * math.cos(side)])
+
+
+def chain(root, pitch, side, bend, l1, l2, bend_sign=1):
+    d1 = limb_dir(pitch, side)
+    d2 = limb_dir(pitch + bend * bend_sign, side)
+    j1 = root + d1 * l1
+    return j1, j1 + d2 * l2, d2
+
+
+HEAD_RX, HEAD_RY = 9.2, 9.6
+
+
+def box(x0, y0, w, h):
+    return (X >= x0) & (X < x0 + w) & (Y >= y0) & (Y < y0 + h)
+
+
+def face_detail(add, kind, fx, sx, sy, dep, fem):
+    """Mắt, mày, mũi, miệng chi tiết cho bản độ phân giải cao (đơn vị thế giới, bước 1/S)."""
+    q = 1.0 / S
+    if kind == "eye":
+        ew = 4.0 if dep > 0.8 else 3.0
+        eh = 5.0
+        x0, y0 = snap(sx - ew / 2), snap(sy - 2.6)
+        outer = -1 if fx < 0 else 1
+        eye = box(x0, y0, ew, eh)
+        t = np.full(X.shape, 3)                                   # lòng trắng
+        icx = x0 + ew * (0.55 if outer > 0 else 0.45)
+        iris = ((X - icx) / (ew * 0.4)) ** 2 + ((Y - (y0 + 2.9)) / 2.1) ** 2 <= 1
+        t[iris] = 2
+        t[iris & (Y < y0 + 1.6)] = 1                              # bóng mí trên đổ xuống tròng
+        t[box(snap(icx - 0.5), y0 + 2.2, 2 * q, 1.5)] = 0         # con ngươi
+        t[box(snap(icx - 1.0), y0 + 1.5, 2 * q, 2 * q)] = 3       # điểm sáng lớn
+        t[box(snap(icx + 0.5), y0 + 3.9, q, q)] = 3
+        lash = box(x0 - (q if outer < 0 else 0), y0, ew + q, q * (2 if fem else 1))
+        t[lash] = 0
+        add(0.6, "eye", eye | lash, t, False)
+        ox = x0 + ew if outer > 0 else x0 - q
+        add(0.6, "eye", box(ox, y0 - (q if fem else 0), q, q * (3 if fem else 2)), 0, False)   # đuôi mắt
+        bw = ew - q
+        bx0 = x0 + (q if outer > 0 else 0)
+        brow = box(bx0, y0 - 2.0, bw, q) | box(bx0 + (bw - q if outer > 0 else 0), y0 - 2.0 + q, q, q)
+        add(0.6, "hair", brow, 1, False)
+    elif kind == "mouth":
+        if fem:
+            add(0.6, "lip", box(snap(sx - 0.75), snap(sy), 1.5, q), 2, False)
+            add(0.6, "lip", box(snap(sx - 0.25), snap(sy) + q, 0.5, q), 1, False)
+        else:
+            add(0.6, "skin", box(snap(sx - 1.0), snap(sy), 2.0, q), 1, False)
+    elif kind == "nose":
+        add(0.6, "skin", box(snap(sx) + q, snap(sy) + q, q, q), 1, False)
+    else:
+        add(0.6, "blush", box(snap(sx - 1.0), snap(sy), 2.0, q), 2, False)
+        add(0.6, "blush", box(snap(sx - 0.5), snap(sy) + q, 1.0, q), 1, False)
+
+
+def draw_figure(yaw, pose, st):
+    R = Rig(yaw, pose.get("x", 0.0))
+    b = pose.get("bob", 0.0)
+    lean = pose.get("lean", 0.0)
+    fem = st["gender"] == "f"
+    realm = st["realm"]
+    parts = []
+    hands = {}
+
+    def add(depth, mat, mask, tone=None, shade=True):
+        parts.append((depth, mat, mask, tone, shade))
+
+    hem = (-10.0 if fem else -13.0)
+    outer_hem = (-5.0 if fem else -8.0)
+    robe_hem = outer_hem if st["outer"] else hem
+    wave = pose.get("tuft", 0.0)
+
+    # ---- halo (always behind)
+    if st["halo"]:
+        hc0 = R.P(0, -48 + b, lean)
+        ring = ell(hc0[0], hc0[1], 13, 13) & ~ell(hc0[0], hc0[1], 11.6, 11.6)
+        spokes = np.zeros((H, W), bool)
+        for i in range(8):
+            a = i * math.pi / 4 + 0.2
+            spokes |= taper((hc0[0] + math.cos(a) * 13, hc0[1] + math.sin(a) * 13),
+                            (hc0[0] + math.cos(a) * 15.5, hc0[1] + math.sin(a) * 15.5), 0.7, 0.3)
+        add(-20, "halo", ring | spokes, 3, False)
+
+    # ---- cape (behind the back)
+    if st["mantle"]:
+        top_l, top_r = R.P(-7.5, -34 + b, -3.5), R.P(7.5, -34 + b, -3.5)
+        bot_l, bot_r = R.P(-10.5, robe_hem + 2, -5.5), R.P(10.5, robe_hem + 2, -5.5)
+        pts = [top_l[:2], top_r[:2]]
+        for k in range(7):
+            t = k / 6
+            x = bot_r[0] + (bot_l[0] - bot_r[0]) * t
+            y = bot_r[1] + (bot_l[1] - bot_r[1]) * t + (1.5 if k % 2 else 0) + math.sin(t * 6 + wave) * 0.8
+            pts.append((x, y))
+        cdep = R.P(0, 0, -4.5)[2]
+        add(min(cdep, 4.0) - 0.5, "mantle", poly(pts))
+
+    # ---- ribbons (piaodai) floating behind shoulders
+    if st["ribbon"]:
+        pts = []
+        for k in range(15):
+            t = k / 14
+            y = -38 + b - math.sin(math.pi * t) * 9 + math.sin(t * 9 + wave * 2) * 0.8
+            pts.append(R.P(-13 + 26 * t, y, -5.5)[:2])
+        m = polyline(pts, 0.9)
+        for sgn in (-1, 1):
+            tp = []
+            for k in range(9):
+                t = k / 8
+                tp.append(R.P(sgn * (13 + 3 * t), -38 + b + 24 * t, -5.5 + math.sin(t * 5 + wave + sgn) * 2)[:2])
+            m |= polyline(tp, 0.9)
+        add(R.P(0, 0, -5.5)[2] - 0.3, "cloth", m)
+
+    # ---- long hair behind (female)
+    if fem:
+        a0, a1 = R.P(0, -46 + b, -4.5 + lean), R.P(0, -20 + b, -5.5)
+        hw0, hw1 = 9.0 * abs(R.c) + 6 * abs(R.s), 7.5 * abs(R.c) + 4.5 * abs(R.s)
+        hb = poly([(a0[0] - hw0, a0[1]), (a0[0] + hw0, a0[1]), (a1[0] + hw1, a1[1]),
+                   (a1[0] + 2, a1[1] + 2.5), (a1[0], a1[1] + 1), (a1[0] - 2, a1[1] + 2.5), (a1[0] - hw1, a1[1])])
+        ht = np.full(X.shape, 2)
+        if S >= 2:
+            col = np.floor((X - a0[0]) * S)
+            ht = np.where(col % 5 == 0, 1, ht)
+            ht = np.where((col % 5 == 2) & (Y < a0[1] + 9), 3, ht)
+        add(a0[2] - 0.2, "hair", hb, ht, False)
+
+    # ---- legs
+    for side_sign, key in ((1, "legL"), (-1, "legR")):
+        lp = pose[key]
+        hip = np.array([side_sign * (2.6 if fem else 3.0), -15.0 + b, 0.0])
+        knee, ankle, d2 = chain(hip, lp[0], side_sign * lp[1], lp[2], 6.8, 6.0, -1)
+        k2, h2, a2 = R.P(*knee), R.P(*hip), R.P(*ankle)
+        fwd = np.array([0.0, 0.0, 1.0]) if lp[0] < 0.9 else np.array([0, -math.sin(lp[0] - 0.4), math.cos(lp[0] - 0.4)])
+        toe = R.P(*(ankle + fwd * 3.6 + np.array([0, 1.4, 0])))
+        heel = R.P(*(ankle - fwd * 1.0 + np.array([0, 1.4, 0])))
+        dep = (h2[2] + a2[2]) / 2 + (2.5 if lp[0] > 0.8 else -3.0)
+        add(dep, "pants", taper(h2, k2, 3.7 if fem else 3.9, 3.4) | taper(k2, a2, 3.4, 2.5))
+        wrap0 = R.P(*(ankle - d2 * 2.0))
+        add(dep + 0.01, "wrap" if st["sect"] == "vo" else "pants", taper(wrap0, a2, 2.5, 2.3))
+        add(dep + 0.02, "shoe", taper(heel, toe, 2.1, 1.9))
+
+    # ---- torso
+    top = -36.0 + b
+    lean_x = R.P(0, 0, lean)[0] - R.cx
+    yy = Y - top
+    span = robe_hem - top
+    sw = 4.6 if fem else 5.2
+    a = np.where(yy < 2.5, sw + yy * 0.95, (sw + 2.4) + (yy - 2.5) / (span - 2.5) * (3.4 if st["outer"] else 2.2))
+    if st["mantle"]:
+        a = np.where(yy < 4.0, a + 1.6, a)
+    bb = np.where(yy < 2.5, 3.6 + yy * 0.4, 4.6 + (yy - 2.5) / (span - 2.5) * 1.2)
+    shift = lean_x * np.clip(1 - yy / span, 0, 1)
+    hw = np.sqrt((a * R.c) ** 2 + (bb * R.s) ** 2)
+    xc = R.cx + shift
+    inside = (Y >= top) & (Y < robe_hem) & (np.abs(X - xc) <= hw)
+    phis = np.linspace(-math.pi, math.pi, 96, endpoint=False)
+    cosp, sinp = np.cos(phis), np.sin(phis)
+    rows = slice(max(0, int(PY + top * S) - 2), min(H, int(PY + robe_hem * S) + 3))
+    lxn = np.zeros((H, W)); lzn = np.zeros((H, W)); nx = np.zeros((H, W)); nz = np.ones((H, W))
+    ar, br, xr = a[rows], bb[rows], xc[rows]
+    xs_phi = xr[..., None] + ar[..., None] * cosp * R.c + br[..., None] * sinp * R.s
+    dep_phi = -ar[..., None] * cosp * R.s + br[..., None] * sinp * R.c
+    score = np.where(np.abs(X[rows][..., None] - xs_phi) <= 0.75, dep_phi, -1e9)
+    k = np.argmax(score, axis=-1)
+    none = score.max(-1) < -1e8
+    k = np.where(none, np.argmin(np.abs(X[rows][..., None] - xs_phi), axis=-1), k)
+    lxn[rows], lzn[rows] = cosp[k], sinp[k]
+    nlx, nlz = lxn[rows] / ar, lzn[rows] / br
+    nn = np.hypot(nlx, nlz)
+    nx[rows] = (nlx * R.c + nlz * R.s) / nn
+    nz[rows] = (-nlx * R.s + nlz * R.c) / nn
+    ttone = tone_from_normal(nx, np.where(yy < 2.5, -0.5, 0.0), nz)
+    front = lzn > 0.2
+    lap1 = -0.55 + np.clip(yy / 12, 0, 1) * 0.9
+    lap2 = 0.55 - np.clip(yy / 6, 0, 1) * 0.55
+    matmap = np.full((H, W), M["outer" if st["outer"] else "tunic"])
+    if st["outer"]:
+        matmap[front & (yy > 3) & (np.abs(lxn) < 0.3)] = M["tunic"]
+        if st["trim"]:
+            matmap[front & (yy > 3) & (np.abs(lxn) >= 0.3) & (np.abs(lxn) < 0.4)] = M["trim"]
+    lapel1 = front & (yy < 12) & (np.abs(lxn - lap1) < 0.09)
+    lapel2 = front & (yy < 6) & (np.abs(lxn - lap2) < 0.09)
+    if st["trim"]:
+        matmap[lapel1 | lapel2] = M["trim"]
+        matmap[yy > span - 1.4] = M["trim"]
+    else:
+        ttone = np.where(lapel1, 0, np.where(lapel2, 1, ttone))
+        ttone = np.where(yy > span - 1.2, np.minimum(ttone, 1), ttone)
+    ttone = np.where((lzn < -0.2) & (yy < 1.5), 1, ttone)
+    if S >= 2:                                         # vertical cloth folds below the sash
+        folds = (yy > 14.6) & (np.abs(((lxn + 1) * 3.2) % 1 - 0.5) < 0.07) & (lzn > -0.6)
+        ttone = np.where(folds & (ttone >= 2), 1, ttone)
+    inner = inside & front & (yy < 5) & (lxn > lap1 + 0.09) & (lxn < lap2 - 0.09)
+    sash = inside & (yy >= 11) & (yy < 14)
+    matmap[inner] = M["inner"]
+    matmap[sash] = M["sash"]
+    if st["mantle"]:
+        matmap[inside & (yy < 3.5) & (np.abs(lxn) > 0.55)] = M["mantle"]
+    add(0.0, matmap, inside, ttone, False)
+    kx, ky, kd = R.P(-0.45 * 7.9, top + 12.5, 0.89 * 4.8)
+    if kd > -0.5:
+        knot = ell(kx, ky, 1.9, 1.6)
+        tails = taper((kx + 0.4, ky + 1), (kx + 1.2 * R.c, robe_hem - 2.0), 1.0, 0.7) | \
+            taper((kx - 0.4, ky + 1), (kx - 0.8 * R.c - 0.5, robe_hem - 1.0), 0.9, 0.6)
+        add(0.05, "sash", knot | tails)
+
+    # ---- arms
+    sleeve_mat = "outer" if st["outer"] else "tunic"
+    bell = 4.4 if st["outer"] else 3.9
+    for side_sign, key in ((1, "armL"), (-1, "armR")):
+        ap = pose[key]
+        sh = np.array([side_sign * (6.4 if fem else 7.0), -33.0 + b, lean * 0.6])
+        elbow, wrist, d2 = chain(sh, ap[0], side_sign * ap[1], ap[2], 7.0, 6.2, 1)
+        s2, e2, w2 = R.P(*sh), R.P(*elbow), R.P(*wrist)
+        hand = R.P(*(wrist + d2 * 1.6))
+        dep = (s2[2] + w2[2]) / 2 + (0.6 if (s2[2] + w2[2]) / 2 > -2.5 else -2.0)
+        cuff0 = R.P(*(wrist - d2 * 1.2))
+        add(dep, sleeve_mat, taper(s2, e2, 3.0, 3.4) | taper(e2, cuff0, 3.4, bell))
+        cuff_mat = "wrap" if st["sect"] == "vo" else ("trim" if st["trim"] else "wrap")
+        add(dep + 0.01, cuff_mat, taper(cuff0, w2, 2.4, 2.2))
+        gaunt = st["sect"] == "vo" and realm >= 3
+        add(dep + 0.02, "metal" if gaunt else "skin", ell(hand[0], hand[1], 2.5 if gaunt else 2.15, 2.5 if gaunt else 2.15))
+        hands[key] = (hand, d2, dep, wrist)
+
+    # ---- weapon
+    def P3(p):
+        return R.P(*p)
+
+    wkind = st["weapon"]
+    if wkind in ("sword", "staff", "banner", "brush"):
+        hand_s, d2, adep, wrist = hands["armR"]
+        hl = wrist + d2 * 1.6
+        if wkind == "sword":
+            pom, guard, tip = P3(hl - d2 * 3.0), P3(hl + d2 * 1.6), P3(hl + d2 * 19.0)
+            g_dir = np.array([guard[1] - pom[1], -(guard[0] - pom[0])])
+            g_dir = g_dir / (np.hypot(*g_dir) or 1) * 3.0
+            wdep = adep + (0.04 if tip[2] >= adep - 1 else -0.6)
+            add(wdep, "metal", taper(guard, tip, 1.5, 0.55))
+            add(wdep + 0.001, "wood", taper(pom, guard, 1.0, 1.0))
+            add(wdep + 0.002, "trim" if st["trim"] else "metal",
+                taper((guard[0] - g_dir[0], guard[1] - g_dir[1]), (guard[0] + g_dir[0], guard[1] + g_dir[1]), 0.7, 0.7))
+        elif wkind in ("staff", "banner"):
+            attack = pose["armR"][0] > 1.0
+            d = d2 if attack else np.array([-0.32, -1.0, 0.06])          # held upright, leaning out of the face
+            d = d / np.linalg.norm(d)
+            bot, top_ = P3(hl - d * 13), P3(hl + d * 30)
+            wdep = adep + 0.04
+            add(wdep - 0.2, "wood", taper(bot, top_, 1.2, 1.2))
+            if wkind == "staff":
+                orb = P3(hl + d * 32.0)
+                add(wdep, "gem", ell(orb[0], orb[1], 3.0, 3.0))
+                prong = np.zeros((H, W), bool)
+                base = P3(hl + d * 29.5)
+                for sg in (-1, 1):
+                    prong |= taper(base, (base[0] + sg * 3.2, base[1] - 4.2), 0.8, 0.5)
+                add(wdep + 0.001, "metal", prong)
+            else:
+                side = -1 if R.s > 0.2 else 1
+                t0 = P3(hl + d * 29.0)
+                fx0, fy0 = t0[0], t0[1]
+                pts = [(fx0, fy0), (fx0 + side * 9, fy0 + 0.5)]
+                for kk in range(5):
+                    tt = kk / 4
+                    pts.append((fx0 + side * (9 - 9 * tt), fy0 + 17 + (2.5 if kk % 2 else 0) + math.sin(tt * 5 + wave) * 0.8))
+                flag = poly(pts)
+                add(wdep - 0.1, "cloth", flag)
+                runes = flag & ((np.floor(Y - fy0) % 4) == 2) & (np.abs(X - (fx0 + side * 4.5)) < 1.2)
+                add(wdep - 0.09, "trim", runes, 3, False)
+                add(wdep, "metal", taper((fx0 - side * 1.2, fy0), (fx0 + side * 10, fy0 + 0.4), 0.8, 0.8))
+        else:  # brush in the right hand, bamboo scroll in the left
+            g0, g1, t1 = P3(hl - d2 * 2.0), P3(hl + d2 * 7.0), P3(hl + d2 * 10.5)
+            wdep = adep + 0.04
+            add(wdep, "wood", taper(g0, g1, 0.85, 0.85))
+            add(wdep + 0.001, "paper", taper(g1, t1, 1.4, 0.5), 3, False)
+            add(wdep + 0.002, "hair", taper(P3(hl + d2 * 9.6), t1, 0.7, 0.45), 0, False)
+            lh, ld2, ldep, lw = hands["armL"]
+            sx, sy = lh[0], lh[1]
+            scroll = (np.abs(X - sx) <= 2.6) & (Y >= sy - 4.5) & (Y <= sy + 2.5)
+            slip_t = np.where((np.floor(X - sx + 3) % 2) == 0, 3, 2)
+            slip_t = np.where(np.abs(Y - (sy - 1)) < 0.6, 0, slip_t)
+            add(ldep + 0.03, "paper", scroll, slip_t, False)
+            add(ldep + 0.04, "skin", ell(sx, sy + 0.5, 1.8, 1.6))
+
+    # ---- neck
+    nk = R.P(0, -37 + b, lean * 0.8)
+    add(0.03, "skin", ell(nk[0], nk[1], 2.0 if fem else 2.2, 1.8))
+
+    # ---- head
+    hc = R.P(0, -47.5 + b, lean)
+    hx, hy = hc[0], hc[1]
+    orx, ory = HEAD_RX + 0.9, HEAD_RY + 0.9
+    box = ((X - hx) / orx) ** 2 + ((Y - hy) / ory) ** 2 <= 1
+    u = np.clip((X - hx) / orx, -1, 1)
+    v = np.clip((Y - hy) / ory, -1, 1)
+    w = np.sqrt(np.clip(1 - u * u - v * v, 0, 1))
+    llx = u * R.c - w * R.s
+    llz = u * R.s + w * R.c
+    zig = np.abs(((llx * (6.5 if fem else 5.5)) % 2) - 1)
+    hairline = (-0.3 + 0.2 * zig + 0.12 * llx) if fem else (-0.22 + 0.24 * zig)
+    head_in = ((X - hx) / HEAD_RX) ** 2 + ((Y - hy) / HEAD_RY) ** 2 <= 1
+    face = head_in & (llz > -0.02) & (v > hairline) & (np.abs(llx) < (0.8 if fem else 0.86) + 0.1 * abs(R.s))
+    ear = head_in & (np.abs(llx) > 0.88) & (np.abs(llz) < 0.16) & (v > 0.06) & (v < 0.32)
+    nape = (llz < -0.05) & (v > 0.62 + 0.14 * np.abs(((llx * 6) % 2) - 1))
+    if fem:
+        ear &= False
+        nape &= False
+    hair = box & ~face & ~ear & ~nape
+    dl = u * LIGHT[0] + v * 0.6 * LIGHT[1] + w * LIGHT[2]
+    rim = ((u / 0.86) ** 2 + (v / 0.9) ** 2 > 1) | (v > 0.8)
+    skin_t = np.where(dl > 0.72, 3, np.where(rim & (u > 0), 1, 2))
+    hn = tone_from_normal(u, v, w)
+    hair_t = np.where(hn == 3, 2, hn)
+    strand = (np.floor((llx + 1) * 9 * S) % 3 == 0) & (v > -0.6) & (v < 0.1)
+    hair_t = np.where(strand & (hair_t == 2), 1, hair_t)
+    shine = (v > -0.66) & (v < -0.5) & (u < -0.05) & (u > -0.7) & ((np.floor((u + 1) * 12 * S) % 3) != 1)
+    hair_t = np.where(shine, 3, hair_t)
+    add(0.5, "skin", face | (head_in & nape), skin_t, False)
+    add(0.505, "skin", ear, 1, False)
+    spikes = np.zeros((H, W), bool)
+    if not fem:
+        for i in range(11):
+            ang = math.radians(195 + i * 15 + (hsh(i, 1) - 0.5) * 6)
+            L = 2.4 + 2.2 * hsh(i, 2)
+            bx, by = hx + math.cos(ang) * orx * 0.92, hy + math.sin(ang) * ory * 0.92
+            spikes |= taper((bx, by), (bx + math.cos(ang + 0.35) * L, by + math.sin(ang + 0.35) * L), 1.6, 0.3)
+        for i in range(4):
+            for sg in (-1, 1):
+                ang = math.radians(90 + sg * (62 + i * 9))
+                bx, by = hx + math.cos(ang) * orx * 0.9, hy + math.sin(ang) * ory * 0.85 - 3
+                spikes |= taper((bx, by), (bx + sg * (1.6 + i * 0.4), by + 2.6 + i), 1.2, 0.3)
+    else:                                              # long locks framing the face
+        for sg in (-1, 1):
+            if -sg * 0.9 * R.s + 0.3 * R.c > -0.6:
+                p0 = R.P(sg * 8.5, hy, 1.5 + lean)
+                spikes |= taper((p0[0], hy - 3), (p0[0] + sg * 0.6 * abs(R.c), hy + 13), 2.0, 1.2)
+    add(0.51, "hair", hair | (spikes & ~face), hair_t, False)
+    for fx, fy, kind in ((-0.36, 0.12, "eye"), (0.36, 0.12, "eye"), (0.0, 0.66, "mouth"), (0.05, 0.42, "nose"),
+                         (-0.55, 0.42, "blush"), (0.55, 0.42, "blush")):
+        fz = math.sqrt(max(0.0, 1 - fx * fx - fy * fy))
+        sx = hx + HEAD_RX * 0.74 * (fx * R.c + fz * R.s)
+        dep = -fx * R.s + fz * R.c
+        sy = hy + HEAD_RY * fy
+        if dep < (0.05 if kind in ("eye", "blush") else -0.15):
+            continue
+        if S >= 2:
+            face_detail(add, kind, fx, sx, sy, dep, fem)
+            continue
+        if kind == "eye":
+            wdt = 3 if dep > 0.8 else 2
+            x0 = round(sx - wdt / 2)
+            y0 = round(sy - 2)
+            em = (X >= x0) & (X < x0 + wdt) & (Y >= y0) & (Y < y0 + 4)
+            et = np.full((H, W), 2)
+            et[(Y < y0 + 1)] = 0
+            et[(X < x0 + 1) & (Y >= y0 + 1)] = 1
+            et[(X >= x0) & (X < x0 + 1) & (Y >= y0 + 1) & (Y < y0 + 2)] = 3
+            add(0.6, "eye", em, et, False)
+            if fem:
+                ox = x0 - 1 if fx < 0 else x0 + wdt
+                add(0.6, "eye", (X >= ox) & (X < ox + 1) & (Y >= y0 - 1) & (Y < y0 + 1), 0, False)
+            else:
+                brow = (X >= x0) & (X < x0 + wdt) & (Y >= y0 - 2) & (Y < y0 - 1)
+                add(0.6, "hair", brow & face, 0, False)
+        elif kind == "mouth":
+            m = (X >= round(sx) - 1) & (X < round(sx) + 1) & (Y >= round(sy)) & (Y < round(sy) + 1)
+            add(0.6, "lip" if fem else "skin", m, 2 if fem else 1, False)
+        elif kind == "nose":
+            add(0.6, "skin", (X >= round(sx)) & (X < round(sx) + 1) & (Y >= round(sy)) & (Y < round(sy) + 1), 1, False)
+        else:
+            add(0.6, "blush", (X >= round(sx) - 1) & (X < round(sx) + 1) & (Y >= round(sy)) & (Y < round(sy) + 1), 2, False)
+    # bun / hair ornament / crown
+    bn = R.P(0, hy - HEAD_RY * 1.02 - 2.2, -2.2 + lean)
+    bdep = 0.4 if bn[2] < 0 else 0.55
+    brx, bry = (4.2, 3.4) if fem else (3.6, 3.3)
+    bun = ell(bn[0], bn[1], brx, bry)
+    add(bdep, "hair", bun, np.where(Y < bn[1] - 1, 2, 1), False)
+    if st["crown"]:
+        crown = (ell(bn[0], bn[1] + 1.5, brx + 1.2, 2.2) & (Y > bn[1] + 0.5)) | \
+            taper((bn[0], bn[1] - 1), (bn[0], bn[1] - 5.5), 1.2, 0.5)
+        if fem:
+            for sg in (-1, 1):
+                crown |= taper((bn[0], bn[1]), (bn[0] + sg * 7, bn[1] - 2.5), 0.55, 0.55)
+                crown |= ell(bn[0] + sg * 7, bn[1] - 2.5, 1.2, 1.2)
+                crown |= taper((bn[0] + sg * 6, bn[1] - 2), (bn[0] + sg * 6.4, bn[1] + 3.5), 0.4, 0.4)
+        add(bdep + 0.02, "trim" if st["trim"] else "metal", crown)
+        add(bdep + 0.03, "gem", ell(bn[0], bn[1] - 5.8, 1.1, 1.1))
+    else:
+        cord = bun & (Y >= bn[1] + 1.2) & (Y < bn[1] + 2.6)
+        tail_dir = 1 if R.s >= 0 else -1
+        tails = taper((bn[0] - tail_dir * 2.5, bn[1] + 2), (bn[0] - tail_dir * (4.5 + wave), bn[1] + 6.5), 0.7, 0.5)
+        add(bdep + 0.01, "cord", cord | tails)
+        if fem:
+            add(bdep + 0.02, "metal", taper((bn[0] - 4.5, bn[1] - 1), (bn[0] + 5, bn[1] + 0.5), 0.5, 0.5))
+
+    c = Canvas()
+    for dep, mat, mask, tone, shade in sorted(parts, key=lambda p: p[0]):
+        c.add(mask, mat, tone, shade)
+    return c, {k: (v[0][0], v[0][1]) for k, v in hands.items()}
+
+
+# ---------------------------------------------------------------- poses
+FRAMES = {"idle": 6, "run": 8, "cast": 10, "attack1": 9, "attack2": 9, "attack3": 10, "hurt": 2, "dead": 6}
+FPS = {"idle": 7, "run": 14, "cast": 16, "attack1": 18, "attack2": 18, "attack3": 18, "hurt": 8, "dead": 8}
+CONTACT = {"cast": [6], "attack1": [3], "attack2": [3], "attack3": [4]}
+EMIT_HAND = {"cast": "armR", "attack1": "armR", "attack2": "armL", "attack3": "armR"}
+
+
+def pose_for(anim, i, st):
+    n = FRAMES[anim]
+    p = 2 * math.pi * i / n
+    guard = (0.75, 0.1, 1.55)
+    armed = st["weapon"] != "fists"
+    if anim == "idle":
+        bob = [0, 0, 1, 1, 1, 0][i]
+        hold = (0.25, 0.14, 0.55) if armed else (0.08, 0.14, 0.22)
+        left = (0.5, 0.1, 1.2) if st["weapon"] == "brush" else (0.08, 0.14, 0.22)
+        return dict(bob=-bob, legL=(0, 0.06, 0), legR=(0, 0.06, 0), armL=left, armR=hold, tuft=math.sin(p) * 0.8)
+    if anim == "run":
+        sn = math.sin(p)
+        d = dict(bob=-1 if abs(sn) < 0.45 else 0, lean=1.6,
+                 legL=(0.75 * sn, 0.04, 0.2 + 0.9 * max(0, -sn)), legR=(-0.75 * sn, 0.04, 0.2 + 0.9 * max(0, sn)),
+                 armL=(-0.8 * sn, 0.12, 0.7), armR=(0.8 * sn, 0.12, 0.7), tuft=-sn * 1.5)
+        if armed:
+            d["armR"] = (0.3 + 0.3 * sn, 0.15, 0.9)
+        return d
+    wide = dict(legL=(0.18, 0.26, 0.3), legR=(-0.18, 0.26, 0.3), bob=1)
+    if anim == "cast":
+        if i < 3:
+            k = (i + 1) / 3
+            a = (0.08 + 0.85 * k, 0.12, 0.2 + 1.5 * k)
+            return dict(wide, armL=a, armR=a, lean=0.5)
+        if i < 6:
+            return dict(wide, armL=(0.95, 0.05, 1.75), armR=(0.95, 0.05, 1.75), lean=0.5)
+        if i < 8:
+            return dict(wide, armL=(0.6, 0.1, 1.4), armR=(1.5, -0.02, 0.05), lean=1.8)
+        k = (i - 7) / 2
+        return dict(wide, armL=guard, armR=(1.5 - 0.7 * k, 0.05, 0.05 + 1.4 * k), lean=1.0 - 0.5 * k)
+    if anim in ("attack1", "attack2"):
+        main, off = ("armR", "armL") if (anim == "attack1" or armed) else ("armL", "armR")
+        if armed and anim == "attack2":            # horizontal sweep with the weapon
+            seq = [(1.3, 0.9, 0.3), (1.35, 1.1, 0.2), (1.45, 0.5, 0.1), (1.5, -0.3, 0.05), (1.45, -0.6, 0.05),
+                   (1.3, -0.5, 0.3), (1.0, -0.2, 0.7), (0.7, 0.05, 0.8), (0.3, 0.1, 0.6)]
+        else:
+            seq = [(-0.35, 0.1, 1.3), (-0.45, 0.1, 1.4), (0.8, 0.05, 0.6), (1.55, 0.0, 0.0), (1.55, 0.0, 0.02),
+                   (1.2, 0.05, 0.6), (0.9, 0.08, 1.2), (0.8, 0.1, 1.45), guard]
+        lean = [0, -0.5, 1.5, 2.6, 2.6, 2.0, 1.2, 0.6, 0.3][i]
+        d = dict(wide, lean=lean)
+        d[main] = seq[i]
+        d[off] = guard
+        if anim == "attack2":
+            d["legL"], d["legR"] = (0.35, 0.22, 0.45), (-0.25, 0.22, 0.3)
+        return d
+    if anim == "attack3":
+        if armed:                                  # overhead chop
+            seq = [(1.0, 0.1, 0.4), (2.2, 0.08, 0.3), (2.85, 0.05, 0.2), (2.9, 0.05, 0.1), (1.9, 0.02, 0.05),
+                   (1.25, 0.02, 0.05), (1.15, 0.05, 0.2), (0.9, 0.08, 0.5), (0.6, 0.1, 0.6), (0.3, 0.12, 0.5)]
+            lean = [0, -0.8, -1.4, -1.4, 1.8, 3.0, 2.6, 1.6, 0.8, 0.2][i]
+            return dict(wide, lean=lean, armR=seq[i], armL=(0.8, 0.15, 1.3))
+        seq = [(0.2, 0.1, 0.3), (0.9, 0.05, 1.7), (1.3, 0.05, 1.9), (1.45, 0.02, 0.9), (1.55, 0.0, 0.1),
+               (1.55, 0.0, 0.0), (1.3, 0.02, 0.8), (0.8, 0.05, 1.5), (0.3, 0.1, 0.6), (0.18, 0.2, 0.3)]
+        lean = [0, -0.5, -1.2, -1.6, -2.0, -2.0, -1.4, -0.8, -0.2, 0][i]
+        return dict(bob=0, lean=lean, legR=seq[i], legL=(-0.1, 0.12, 0.25), armL=guard, armR=(0.5, 0.25, 1.4))
+    if anim == "hurt":
+        return dict(bob=0, lean=-2.2 + i * 0.6, legL=(0.1, 0.12, 0.3), legR=(-0.15, 0.12, 0.3),
+                    armL=(-0.3, 0.55, 0.5), armR=(-0.3, 0.55, 0.5))
+    if anim == "dead":
+        k = min(i, 2)
+        return dict(bob=[0, 3, 6][k], lean=[-2.2, 0.5, 2.0][k], legL=(0.6 * k, 0.15, [0.3, 1.3, 2.4][k]),
+                    legR=(0.6 * k, 0.15, [0.3, 1.3, 2.4][k]), armL=(-0.2, 0.5 - 0.2 * k, 0.4),
+                    armR=(-0.2, 0.5 - 0.2 * k, 0.4))
+    raise ValueError(anim)
+
+
+def frame_src(src, anim, i, st):
+    """Frame for one of the 5 drawn directions (south, south-east, east, north-east, north)."""
+    if anim == "dead" and i >= 3:
+        base = frame_src(src, "dead", 2, st)[0]
+        ys, xs = np.nonzero(base[..., 3])
+        crop = base[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
+        rot = np.rot90(crop, -1 if src != "north-east" else 1)
+        out = np.zeros_like(base)
+        rh, rw = min(rot.shape[0], H - 2), min(rot.shape[1], W - 2)
+        rot = rot[:rh, :rw]
+        y0 = max(0, PY + 1 - rh + (i - 3))
+        x0 = max(0, PX - rw // 2)
+        out[y0:y0 + rh, x0:x0 + rw] = rot[:H - y0, :W - x0]
+        return out, {}
+    c, hands = draw_figure(YAW[src], pose_for(anim, i, st), st)
+    return c.render(st["pal"]), hands
+
+
+def frame(direction, anim, i, st):
+    src = MIRROR.get(direction, direction)
+    img, hands = frame_src(src, anim, i, st)
+    if direction in MIRROR:
+        img = img[:, ::-1].copy()
+        hands = {k: (-v[0], v[1]) for k, v in hands.items()}
+    return img, hands
+
+
+# ---------------------------------------------------------------- output
+def set_name(sect, gender, realm):
+    return f"{sect}_{gender}{realm}"
+
+
+def build(args):
+    sect, gender, realm = args
+    st = style(sect, gender, realm)
+    name = set_name(sect, gender, realm)
+    dst = os.path.join(OUT_DIR, name)
+    os.makedirs(dst, exist_ok=True)
+    rig = {"name": name, "view": "top-down", "fps": 8, "directions": DIRS8, "pixel_scale": 1, "height": 64,
+           "source": "Nhân vật thiết kế riêng, vẽ bằng code (tools/chibi_char.py)", "anims": {}}
+    for anim, n in FRAMES.items():
+        info = {"frame": [W, H], "frames": n, "fps": FPS[anim], "loop": anim in ("idle", "run"), "sheets": {},
+                "pivot": [PX, PY]}
+        if anim in CONTACT:
+            info["contact"] = CONTACT[anim]
+            info["ms"] = [round(1000 / FPS[anim], 2)] * n
+        cache = {src: [frame_src(src, anim, i, st) for i in range(n)] for src in YAW}
+        emit = {}
+        for d in DIRS8:
+            src = MIRROR.get(d, d)
+            strip = np.zeros((H, W * n, 4), np.uint8)
+            for i in range(n):
+                img, hands = cache[src][i]
+                if d in MIRROR:
+                    img = img[:, ::-1]
+                    hands = {k: (-v[0], v[1]) for k, v in hands.items()}
+                strip[:, i * W:(i + 1) * W] = img
+                if anim in EMIT_HAND and i == CONTACT[anim][0] and EMIT_HAND[anim] in hands:
+                    hx, hy = hands[EMIT_HAND[anim]]
+                    emit[d] = [round(float(hx), 1), round(float(hy), 1)]
+            fname = f"{anim}_{d}.png"
+            Image.fromarray(strip).save(os.path.join(dst, fname), optimize=True)
+            info["sheets"][d] = fname
+        if emit:
+            info["emit"] = {"frames": CONTACT[anim], "point": emit, "at": "hand"}
+        rig["anims"][anim] = info
+    with open(os.path.join(dst, "rig.json"), "w", encoding="utf8") as f:
+        json.dump(rig, f, ensure_ascii=False, indent=1)
+    return name
+
+
+def preview(out):
+    os.makedirs(out, exist_ok=True)
+    bg = (62, 123, 58, 255)
+    crop = lambda im: im[16 * S:108 * S, 30 * S:114 * S]      # noqa: E731
+
+    def grid(rows, path, scale=2):
+        sheet = np.concatenate([np.concatenate(r, 1) for r in rows], 0)
+        im = Image.new("RGBA", (sheet.shape[1], sheet.shape[0]), bg)
+        im.alpha_composite(Image.fromarray(sheet))
+        im.resize((im.width * scale, im.height * scale), Image.NEAREST).save(path)
+
+    for g in ("m", "f"):
+        rows = [[crop(frame("south-east", "idle", 0, style(sect, g, r))[0]) for r in range(6)] for sect in SECTS]
+        grid(rows, os.path.join(out, f"realms_{g}.png"))
+    st = style("kiem", "f", 3)
+    rows = []
+    for d in ("south", "south-east", "east", "north-east", "north"):
+        rows.append([crop(frame(d, a, k, st)[0]) for a, k in (("idle", 0), ("run", 2), ("cast", 6), ("attack1", 3),
+                                                             ("attack2", 3), ("attack3", 3), ("attack3", 5))])
+    grid(rows, os.path.join(out, "anims_kiem_f3.png"))
+    print("preview ok")
+
+
+def hd_test(out):
+    """So sánh bản thường và bản HD: Kiếm Tu nữ + nam, Luyện Khí, 4 hướng; ảnh động chạy."""
+    os.makedirs(out, exist_ok=True)
+    bg = (62, 123, 58, 255)
+    dirs = ["south", "south-east", "east", "north"]
+    rows = []
+    for scale in (1, 2):
+        set_scale(scale)
+        for g in ("f", "m"):
+            st = style("kiem", g, 0)
+            cells = [frame(d, "idle", 0, st)[0][16 * S:108 * S, 30 * S:114 * S] for d in dirs]
+            img = np.concatenate(cells, 1)
+            if scale == 1:
+                img = img.repeat(2, 0).repeat(2, 1)
+            rows.append(img)
+    sheet = np.concatenate(rows, 0)
+    im = Image.new("RGBA", (sheet.shape[1], sheet.shape[0]), bg)
+    im.alpha_composite(Image.fromarray(sheet))
+    im.resize((im.width * 2, im.height * 2), Image.NEAREST).save(os.path.join(out, "hd_compare.png"))
+    set_scale(2)
+    for g in ("f", "m"):
+        st = style("kiem", g, 0)
+        frames = []
+        for i in range(FRAMES["run"]):
+            strip = np.concatenate([frame(d, "run", i, st)[0][16 * S:108 * S, 30 * S:114 * S] for d in dirs], 1)
+            f = Image.new("RGBA", (strip.shape[1], strip.shape[0]), bg)
+            f.alpha_composite(Image.fromarray(strip))
+            frames.append(f.convert("RGB").resize((f.width * 2, f.height * 2), Image.NEAREST))
+        frames[0].save(os.path.join(out, f"hd_run_{g}.gif"), save_all=True, append_images=frames[1:],
+                       duration=round(1000 / FPS["run"]), loop=0)
+        face = frame("south", "idle", 0, st)[0][30 * S:72 * S, 52 * S:92 * S]
+        f = Image.new("RGBA", (face.shape[1], face.shape[0]), bg)
+        f.alpha_composite(Image.fromarray(face))
+        f.resize((f.width * 6, f.height * 6), Image.NEAREST).save(os.path.join(out, f"hd_face_{g}.png"))
+    print("hd test ok")
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--preview")
+    ap.add_argument("--build-all", action="store_true")
+    ap.add_argument("--only", help="vd: kiem_m0 (chỉ xuất 1 bộ)")
+    ap.add_argument("--hd", action="store_true", help="độ phân giải gấp đôi")
+    ap.add_argument("--hd-test", help="thư mục: xuất ảnh thử bản HD")
+    a = ap.parse_args()
+    if a.hd_test:
+        hd_test(a.hd_test)
+        return
+    if a.preview:
+        preview(a.preview)
+    jobs = [(s, g, r) for s in SECTS for g in ("m", "f") for r in range(6)]
+    if a.only:
+        jobs = [j for j in jobs if set_name(*j) == a.only]
+    if a.build_all or a.only:
+        from multiprocessing import Pool
+        with Pool(max(1, (os.cpu_count() or 2) - 1)) as pool:
+            for name in pool.imap_unordered(build, jobs):
+                print("built", name, flush=True)
+
+
+if __name__ == "__main__":
+    main()

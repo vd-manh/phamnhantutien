@@ -1,0 +1,36 @@
+{
+ "tt": 1,
+ "name": "kim_chung_trao",
+ "w": 134,
+ "h": 172,
+ "frames": 42,
+ "columns": 30,
+ "fps": 30.0,
+ "speed": 1.0,
+ "loop": false,
+ "pivot": [
+  67,
+  141
+ ],
+ "target": null,
+ "states": {
+  "drop": [
+   0.0,
+   0.267
+  ],
+  "strike": [
+   0.267,
+   0.333
+  ],
+  "ring": [
+   0.333,
+   0.833
+  ],
+  "dissolve": [
+   0.833,
+   1.4
+  ]
+ },
+ "hits": [],
+ "duration": 1.4
+}

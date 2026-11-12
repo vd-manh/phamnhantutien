@@ -1,0 +1,44 @@
+{
+ "tt": 1,
+ "name": "cuu_long_de_vuong",
+ "w": 362,
+ "h": 204,
+ "frames": 90,
+ "columns": 11,
+ "fps": 30.0,
+ "speed": 1.0,
+ "loop": false,
+ "pivot": [
+  113,
+  182
+ ],
+ "target": null,
+ "states": {
+  "gather": [
+   0.0,
+   0.9
+  ],
+  "roar": [
+   0.9,
+   1.3
+  ],
+  "fly": [
+   1.3,
+   1.933
+  ],
+  "bite": [
+   1.933,
+   2.367
+  ],
+  "dissolve": [
+   2.367,
+   3.0
+  ]
+ },
+ "hits": [
+  1.8667,
+  2.0667,
+  2.3
+ ],
+ "duration": 3.0
+}

@@ -1,0 +1,497 @@
+"""giang_long_chuong (v2): Giáng Long Thập Bát Chưởng, storm version. The caster stands and gathers force while a
+blue cloud deck forms in the sky between the caster and the target and winds into a vortex with lightning flickering
+inside; the eye opens. The palm thrusts a violet bolt up into the eye; eighteen large violet loong pour out of the
+cloud one after another and dive onto the target, violet lightning crackling round their bodies every frame. A great
+bolt drops from the cloud, a giant violet dragon head rises at the target and bursts; the cloud breaks apart.
+
+Side view facing east (mirror True), 460x360 cell, pivot on the caster's feet (110, 330), 30 fps, 150 frames (5 s),
+one-shot, outlined pixel art, glow strong, clarity clear. Violet dragons and lightning, blue storm cloud.
+Fixed range: the dive lands 192 px ahead.
+
+| state    | frames | s         | what moves                                                              | carrier            |
+|----------|--------|-----------|-------------------------------------------------------------------------|--------------------|
+| gather   | 0-35   | 0.0-1.2   | caster gathers qi; the cloud deck grows and winds, lightning inside     | core, cloud        |
+| thrust   | 36-39  | 1.2-1.33  | palm flash, a violet bolt from the palm to the cloud's eye              | bolt               |
+| torrent  | 40-108 | 1.33-3.6  | 18 large violet dragons dive from the cloud onto the target, crackling | dragon heads       |
+| finale   | 109-121| 3.6-4.07  | a great bolt drops, a giant dragon head rises at the target and bursts | giant head         |
+| dissolve | 122-149| 4.07-5.0  | the cloud breaks up and thins, sparks and dust settle                   | cloud, sparks      |
+
+Cloud deck: the method of drafts/van_kiem_quy_tong_v5 deck() (reused on the owner's request): a squashed disc of
+wound noise with three arms tightening toward the eye, a darker belly under it, a pale rim round the open eye,
+recoloured to the dragons' black-violet ramp. Dragons: the part list of drafts/cuu_long_de_vuong, 2.2x head, 18 px neck, black-violet; the cloud recoloured to the same black-violet.
+"""
+import math
+import sys
+from pathlib import Path
+from types import SimpleNamespace
+
+import numpy as np
+
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE / "kit"))
+import export as ex  # noqa: E402
+import facing as fc  # noqa: E402
+import fxkit as fk  # noqa: E402
+import fxlib as fl  # noqa: E402
+import light as lt  # noqa: E402
+import pfx  # noqa: E402
+
+NAME = "giang_long_chuong"
+OUT = HERE / "out"
+W, H = 460, 360
+PX, PY = 110, 330
+PIVOT = (PX, PY)
+FPS, N = 30, 150
+SEED = 18
+STATES = {"gather": (0, 35), "thrust": (36, 39), "torrent": (40, 108), "finale": (109, 121), "dissolve": (122, 149)}
+# 0-6 black-violet dragon (outline .. pale violet, mouth), 7-9 dust, 10-16 black-violet cloud (deep .. pale rim)
+PAL = ["#040108", "#14081f", "#261038", "#3e1c5e", "#7a3cc4", "#d4a8ff", "#6a0a2a", "#2c2630", "#5a4c5c", "#8a7c8c",
+       "#05020a", "#0e0619", "#190b2c", "#281245", "#3c1c66", "#5e3196", "#cfa4ff"]
+CLOUD = 10
+LIGHT_RAMP = ["#2a0a4a", "#8a3ae0", "#d4a6ff", "#ffffff"]
+
+X, Y = fl.grid(W, H, PX, PY)
+CV = SimpleNamespace(x=X, y=Y)
+PALM = np.array([16.0, -34.0])
+TX, TY = 192.0, -16.0
+ND = 18
+THRUST = 36
+TAU = 2 * math.pi
+
+# cloud deck geometry (world px)
+EX, EY, RX, FLAT, TH = 112.0, -232.0, 128.0, 0.26, 12.0
+EYE_DEEP = EY + TH * 0.6          # where dragons leave the cloud
+
+
+def smooth(a, b, x):
+    t = np.clip((x - a) / (b - a), 0, 1)
+    return t * t * (3 - 2 * t)
+
+
+def sm(t):
+    t = min(1.0, max(0.0, t))
+    return t * t * (3 - 2 * t)
+
+
+def box(pts, pad):
+    x0 = int(max(0, np.floor(pts[:, 0].min() + PX - pad)))
+    x1 = int(min(W, np.ceil(pts[:, 0].max() + PX + pad)))
+    y0 = int(max(0, np.floor(pts[:, 1].min() + PY - pad)))
+    y1 = int(min(H, np.ceil(pts[:, 1].max() + PY + pad)))
+    return slice(y0, y1), slice(x0, x1)
+
+
+def draw_body(layer, pts, wn, f, k):
+    """pts tail -> neck (world px). wn: neck width."""
+    if len(pts) < 2:
+        return
+    sy, sx = box(pts, wn + 4)
+    x, y = X[sy, sx], Y[sy, sx]
+    sub = layer[sy, sx]
+    d, t, side = fl.stroke(x, y, pts, 1.6, wn)
+    on = d < 0
+    sub[on] = 2
+    hi_d, _, _ = fl.stroke(x, y, pts + np.array([-0.5, -1.7]), 0.6, wn * 0.42)
+    sub[on & (hi_d < 0)] = 4
+    lo_d, _, _ = fl.stroke(x, y, pts + np.array([0.4, 1.9]), 0.5, wn * 0.38)
+    sub[on & (lo_d < 0) & (hi_d >= 0)] = 1
+    length = float(np.hypot(*(pts[1:] - pts[:-1]).T).sum())
+    scale = (np.floor(t * length / 2.6).astype(int) + (side > 0)) % 2 == 0     # carp scales
+    sub[on & (hi_d >= 0) & (lo_d >= 0) & scale] = 3
+    # dorsal spines on the upper side, every 5 px
+    for i in range(4, len(pts) - 2, 8):
+        tx, ty = pts[i + 1] - pts[i - 1]
+        nl = math.hypot(tx, ty) or 1
+        nx, ny = -ty / nl, tx / nl
+        if ny > 0:
+            nx, ny = -nx, -ny
+        frac = i / (len(pts) - 1)
+        half = (1.6 + (wn - 1.6) * frac) / 2
+        L = 1.0 + 1.8 * frac
+        bx, by = pts[i] + np.array([nx, ny]) * half
+        fl.line(layer, bx + PX - 0.5, by + PY - 0.5, bx + nx * L + PX - 0.5, by + ny * L + PY - 0.5, 3)
+        fl.put(layer, bx + nx * L + PX - 0.5, by + ny * L + PY - 0.5, 4)
+    # flame tuft at the tail
+    tx, ty = pts[0] - pts[min(3, len(pts) - 1)]
+    nl = math.hypot(tx, ty) or 1
+    tail = np.array([pts[0], pts[0] + np.array([tx, ty]) / nl * 5 + np.array([0, math.sin(f * 0.6 + k) * 2]),
+                     pts[0] + np.array([tx, ty]) / nl * 8 + np.array([0, -2 + math.sin(f * 0.6 + k + 1) * 3])])
+    sy, sx = box(tail, 4)
+    d2, _, _ = fl.stroke(X[sy, sx], Y[sy, sx], tail, 3.0, 0.4)
+    layer[sy, sx][(d2 < 0) & (layer[sy, sx] < 0)] = 3
+
+
+def draw_head(layer, L, hx, hy, a, sc, open_, f, k, glow_k):
+    """Head at (hx, hy) facing angle a, scale sc, jaw open 0..1. Local u along the snout, v down."""
+    ca, sa = math.cos(a), math.sin(a)
+    vs = 1.0 if ca >= -0.15 else -1.0                   # never upside down
+    r = 26 * sc
+    sy, sx = box(np.array([[hx - r, hy - r], [hx + r, hy + r]]), 1)
+    x, y = X[sy, sx], Y[sy, sx]
+    dx, dy = x - hx, y - hy
+    u = (dx * ca + dy * sa) / sc
+    v = (-dx * sa + dy * ca) * vs / sc
+    sub = layer[sy, sx]
+
+    def put(mask, s):
+        sub[mask] = s
+
+    def strk(pts, w0, w1):
+        return fl.stroke(u, v, np.asarray(pts, float), w0, w1)[0] < 0
+
+    flick = math.sin(f * 0.7 + k * 1.3)
+    # mane: flame locks behind the skull
+    for j, (v0, v1) in enumerate(((-3.2, -6.5), (-0.8, 0.5), (1.8, 6.0))):
+        put(strk([(-2, v0), (-8, v0 + (v1 - v0) * 0.5 + flick), (-14 - j, v1 + flick * 1.5)], 3.4, 0.4), 2)
+        put(strk([(-2, v0), (-8, v0 + (v1 - v0) * 0.5 + flick)], 1.4, 0.4), 3)
+    # far horn (darker, behind) and near horn
+    for off, tone in (((1.6, 0.6), 2), ((0, 0), 4)):
+        ox, oy = off
+        put(strk([(-1 + ox, -4.3 + oy), (-6 + ox, -8.5 + oy), (-10 + ox, -12.5 + oy)], 1.8, 0.8), tone)
+        put(strk([(-5.2 + ox, -8 + oy), (-4.6 + ox, -13 + oy)], 1.3, 0.6), tone)
+    # skull and snout
+    skull = ((u / 6.2) ** 2 + ((v + 1.0) / 4.7) ** 2) <= 1
+    top = -3.4 + np.clip(u - 3, 0, None) * 0.16 - 1.1 * np.exp(-((u - 12.6) / 1.3) ** 2)
+    snout = (u >= 2) & (u <= 14.2) & (v >= top) & (v <= 0.7 - np.clip(u - 2, 0, None) * 0.04)
+    upper = skull | snout
+    put(upper, 3)
+    put(upper & (v < top + 1.2) & (u > 1), 4)
+    put(skull & (v < -3.3), 4)
+    # lower jaw on a hinge at (1, 1)
+    phi = open_ * 0.42
+    cu, su = math.cos(phi), math.sin(phi)
+    ju, jv = (u - 1) * cu + (v - 1) * su, -(u - 1) * su + (v - 1) * cu
+    jaw = (ju >= -0.5) & (ju <= 10.6) & (jv >= -0.2) & (jv <= 2.8 - ju * 0.13)
+    if open_ > 0.15:                                  # red mouth and teeth between the jaws
+        mouth = (u > 1.5) & (u < 12.8) & (v > 0.6) & (jv < -0.2) & ~upper
+        put(mouth, 6)
+        for tu in (5.0, 8.0, 11.0):
+            put((np.abs(u - tu) < 0.6) & (v > 0.6) & (v < 1.9) & ~jaw, 5)
+            put((np.abs(ju - (tu - 1.5)) < 0.6) & (jv > -1.3) & (jv < -0.1), 5)
+    put(jaw, 2)
+    put(jaw & (jv > 1.8), 1)
+    # beard tuft under the jaw
+    put(strk([(4, 3.5 + phi * 4), (1, 6 + phi * 4), (-2, 8 + phi * 3 + flick)], 2.4, 0.4) & (layer[sy, sx] < 0), 2)
+    # brow ridge, eye, nose
+    put((np.abs(v + 3.6) < 0.6) & (u > 1.2) & (u < 5.5), 1)
+    eye = ((u - 3.4) / 1.5) ** 2 + ((v + 2.2) / 1.1) ** 2 <= 1
+    put(eye, 5)
+    put(((u - 3.9) ** 2 + (v + 2.2) ** 2) <= 0.35, 6)
+    put(((u - 12.9) / 1.2) ** 2 + ((v + 2.4) / 0.9) ** 2 <= 1, 4)
+    # two catfish barbels trailing back
+    for j, (v0, amp) in enumerate(((0.2, 1.0), (-1.0, 1.4))):
+        pts = [(12.6, v0), (7, 3 + j + flick * amp), (0, 6 + j * 2 - flick * amp), (-9, 8 + j * 3 + flick * 2 * amp)]
+        put(strk(pts, 1.0, 0.7) & (layer[sy, sx] < 0), 4)
+    # light: demon eye (tight core + pool), the snout when open
+    ex_, ey_ = hx + (3.4 * ca - (-2.2) * vs * sa) * sc, hy + (3.4 * sa + (-2.2) * vs * ca) * sc
+    lt.glow(L, CV, ex_, ey_, 4 * sc, 0.6 * glow_k)
+    lt.glow(L, CV, ex_, ey_, 11 * sc, 0.27 * glow_k)
+    if open_ > 0.3:
+        mx, my = hx + 9 * ca * sc, hy + 9 * sa * sc
+        lt.glow(L, CV, mx, my, 8 * sc, 0.3 * open_ * glow_k)
+
+
+
+# ---------------------------------------------------------------- cloud deck (method of van_kiem_quy_tong_v5)
+def spin(f):
+    return 0.02 * f + 0.0009 * f * f
+
+
+def hole_r(f):
+    return 22 * sm((f - 20) / 16) + 26 * sm((f - 124) / 20)
+
+
+def eye_k(f):
+    return (0.15 + 0.6 * sm((f - 10) / 26)) * (1 - sm((f - 124) / 20))
+
+
+def deck(f, seed):
+    sp = spin(f)
+    grow = 0.45 + 0.55 * sm(f / 30)
+    brk = 0.8 * sm((f - 125) / 22)
+    P = 600.0
+
+    def polar(yoff):
+        dx = X - EX
+        dy = (Y - EY - yoff) / FLAT
+        return np.hypot(dx, dy), np.arctan2(dy, dx), dy
+
+    def field(r, th):
+        phi = th - sp + 2.4 * 45 / (r + 45)
+        n1 = fl.noise((phi % TAU) / TAU * P, r * 2.0, 40, seed + 1, period=(P, 4096))
+        n2 = fl.noise(((2 * phi + 1.3) % TAU) / TAU * P, r * 3.0, 30, seed + 2, period=(P, 4096))
+        arm = 0.5 + 0.5 * np.cos(3 * (th - sp * 1.2) + 3.2 * np.log1p(r / 25) + 0.8 * (n1 - 0.5))
+        return 0.3 * n1 + 0.2 * n2 + 0.5 * arm ** 1.5
+
+    def edges(th):
+        z = np.zeros_like(th)
+        ne = fl.noise(((th - sp * 0.5) % TAU) / TAU * P, z, 50, seed + 3, period=(P, 4096))
+        nh = fl.noise(((th + sp) % TAU) / TAU * P, z, 40, seed + 4, period=(P, 4096))
+        return RX * grow * (0.84 + 0.16 * ne), hole_r(f) * (0.88 + 0.24 * nh)
+
+    r, th, dy = polar(0)
+    c = field(r, th)
+    rout, rh = edges(th)
+    pres = 0.85 * c + 0.4 * np.clip((rout - r) / 40, 0, 1) - 0.12 - brk + 0.3 * np.clip(1 - r / 70, 0, 1)
+    top = (r < rout) & (r > rh) & (pres > 0.18)
+    hole = (r <= rh) & (hole_r(f) > 0.5)
+    rb, thb, _ = polar(TH * grow)
+    cb = field(rb, thb)
+    routb, rhb = edges(thb)
+    presb = 0.75 * cb + 0.45 * np.clip((routb - rb) / 40, 0, 1) - 0.22 - brk
+    belly = (rb < routb * 0.97) & (rb > rhb) & (presb > 0.18) & ~top
+    ek = eye_k(f)
+    inner = 1 - np.clip((r - rh) / (rout * 0.85), 0, 1)
+    b = 0.5 * inner + 0.5 * c + 0.12 * np.clip(-dy / 90, 0, 1) + 0.25 * ek * inner ** 2 - 0.05 - 0.7 * brk
+    tone = np.full(r.shape, -1)
+    tone[top] = np.clip((b[top] * 6.5).astype(int), 0, 5)
+    tone[belly] = np.clip((cb[belly] * 2.6 + 0.4 * ek).astype(int), 0, 2)
+    hb = hole.copy()
+    hb[1:] |= hole[:-1]; hb[:-1] |= hole[1:]; hb[:, 1:] |= hole[:, :-1]; hb[:, :-1] |= hole[:, 1:]
+    tone[(top | belly) & hb] = 6
+    return tone, hole
+
+
+# ---------------------------------------------------------------- lightning
+def bolt(m, L, p0, p1, rng, k=0.3, segs=5, jit=4.0, core=5, edge=3):
+    """A jagged bolt p0 -> p1: 1 px white-violet core, a violet fringe, light along it."""
+    pts = [np.array(p0, float)]
+    d = np.array(p1, float) - np.array(p0, float)
+    nl = np.hypot(*d) or 1
+    nrm = np.array([-d[1], d[0]]) / nl
+    for i in range(1, segs):
+        pts.append(np.array(p0) + d * i / segs + nrm * rng.uniform(-jit, jit))
+    pts.append(np.array(p1, float))
+    for a, b_ in zip(pts[:-1], pts[1:]):
+        fl.line(m, a[0] + PX - 0.5 + 1, a[1] + PY - 0.5, b_[0] + PX - 0.5 + 1, b_[1] + PY - 0.5, edge)
+        fl.line(m, a[0] + PX - 0.5, a[1] + PY - 0.5, b_[0] + PX - 0.5, b_[1] + PY - 0.5, core)
+        lt.glow_line(L, CV, tuple(a), tuple(b_), 4, k)
+
+
+# ---------------------------------------------------------------- dragons diving from the cloud
+LAUNCH = [40 + k * 3.0 for k in range(ND)]
+FLIGHT = 18.0
+ARRIVE = [a + FLIGHT for a in LAUNCH]
+BODY_S = 0.6
+
+
+def path_point(k, s):
+    """Dragon k's dive: leaves the cloud's underside near the eye, bows out, lands on the target."""
+    spread = (k % 6 - 2.5) * 17
+    start = np.array([EX + spread, EYE_DEEP + 6])
+    end = np.array([TX + (k % 3 - 1) * 4, TY + (k % 2) * 3])
+    bow = (1 if k % 2 else -1) * (30 + 8 * (k % 3))
+    ctrl = (start + end) / 2 + np.array([bow, -20])
+    p = (1 - s) ** 2 * start + 2 * (1 - s) * s * ctrl + s * s * end
+    d = end - start
+    nrm = np.array([-d[1], d[0]]) / (np.hypot(*d) or 1)
+    return p + nrm * 6 * math.sin(s * TAU * 1.5 + k) * math.sin(math.pi * s)
+
+
+def dragon_pts(k, f):
+    a, b = LAUNCH[k], ARRIVE[k]
+    if f < a:
+        return None
+    u = (f - a) / (b - a)
+    head = min(1.0, u ** 1.25)
+    pour = max(0.0, (f - b) / 4.0)
+    tail = max(0.0, head - BODY_S * min(1.0, u * 1.6)) + pour * BODY_S
+    if tail >= head - 0.02:
+        return None
+    ss = np.linspace(tail, head, 24)
+    return np.array([path_point(k, s) for s in ss])
+
+
+def render(f, seed=SEED, caster=False):
+    m = np.full((H, W), -1, np.int8)
+    L = lt.buffer(CV)
+    rng = np.random.default_rng(seed * 1000 + f)            # per frame: lightning re-draws every frame (flicker)
+
+    # ---- cloud deck (behind everything)
+    tone, hole = deck(f, seed)
+    m[tone >= 0] = CLOUD + tone[tone >= 0]
+    ek = eye_k(f)
+    if ek > 0.02:
+        lt.glow(L, CV, EX, EY + 4, 34, 0.22 * ek)
+        lt.glow(L, CV, EX, EY + 4, 12, 0.35 * ek)
+    # lightning inside the cloud, flickering
+    if 6 <= f < 130 and rng.random() < 0.55:
+        a0 = rng.uniform(-math.pi, math.pi)
+        rr = rng.uniform(20, RX * 0.7)
+        p0 = (EX + math.cos(a0) * rr, EY + math.sin(a0) * rr * FLAT + 4)
+        p1 = (p0[0] + rng.uniform(-36, 36), p0[1] + rng.uniform(-6, 10))
+        bolt(m, L, p0, p1, rng, k=0.25, segs=4, jit=3.0)
+        lt.glow(L, CV, p0[0], p0[1], 26, 0.12)
+
+    # ---- gather at the caster: chest core grows, ground ring, rising violet qi
+    core_k = float((0.15 + 0.55 * smooth(0, THRUST, f)) * (1 - smooth(THRUST, THRUST + 6, f)))
+    if core_k > 0.02:
+        rc = 1.5 + 3.0 * float(smooth(0, THRUST, f))
+        m[np.hypot(X - PALM[0], Y - PALM[1]) < rc] = 5
+        lt.glow(L, CV, *PALM, 5 + 5 * float(smooth(0, THRUST, f)), core_k)
+        lt.glow(L, CV, *PALM, 22, core_k * 0.35)
+    if f < THRUST + 4:
+        g = float(smooth(0, 10, f) * (1 - smooth(THRUST, THRUST + 4, f)))
+        rx, ry = 26.0, 8.0
+        dd = np.abs(np.hypot(X / rx, Y / ry) - 1) * rx
+        ang = np.arctan2(Y / ry, X / rx)
+        dash = (np.floor((ang + f * 0.25 + math.pi) / 0.45) % 3) != 0
+        if g > 0.2:
+            m[(dd < 0.9) & dash] = 3
+        lt.glow_ring(L, CV, 0, 0, rx, 3, 0.2 * g, flat=ry / rx)
+        for i in range(14):
+            ph_ = (f * 0.09 + fk.hsh(i, seed + 60)) % 1.0
+            ang_ = TAU * fk.hsh(i, seed + 61) + f * 0.05
+            sx_ = math.cos(ang_) * (20 + 4 * fk.hsh(i, seed + 62))
+            y0_ = -2 - ph_ * 64
+            ln_ = 6 + 6 * fk.hsh(i, seed + 63)
+            if g > 0.15 and math.sin(ang_) > -0.6:
+                fl.line(m, sx_ + PX - 0.5, y0_ + PY - 0.5, sx_ + PX - 0.5, y0_ - ln_ * (1 - ph_) + PY - 0.5,
+                        4 if ph_ < 0.5 else 3)
+                lt.glow_line(L, CV, (sx_, y0_), (sx_, y0_ - ln_), 3, 0.12 * g * (1 - ph_))
+        lt.glow(L, CV, 0, -30, 34, 0.1 * g)
+
+    # ---- thrust: palm flash and a violet bolt up into the eye
+    lt.flash_at(L, CV, f, THRUST, *PALM, 46, 0.85, 6)
+    if THRUST <= f < THRUST + 4:
+        bolt(m, L, tuple(PALM), (EX, EYE_DEEP), rng, k=0.5, segs=9, jit=7.0)
+
+    # ---- the dragons, with lightning crackling round each body every frame
+    for k in sorted(range(ND), key=lambda k: -k):
+        pts = dragon_pts(k, f)
+        if pts is None:
+            continue
+        layer = np.full((H, W), -1, np.int8)
+        draw_body(layer, pts, 18.0, f, k)
+        hd = pts[-1] - pts[-3]
+        a = math.atan2(hd[1], hd[0])
+        u = (f - LAUNCH[k]) / FLIGHT
+        if f < ARRIVE[k] + 1:
+            open_ = float(smooth(0.5, 0.85, u) * (1 - smooth(0.92, 1.0, u)))
+            draw_head(layer, L, pts[-1][0], pts[-1][1], a, 2.2, open_, f, k, 0.9)
+            lt.glow(L, CV, pts[-1][0], pts[-1][1], 22, 0.14)
+        layer = fl.outline(layer, 0)
+        m[layer >= 0] = layer[layer >= 0]
+        for _ in range(2):
+            j = rng.integers(0, len(pts))
+            ang2 = rng.uniform(0, TAU)
+            ln2 = rng.uniform(14, 27)
+            q0 = pts[j]
+            bolt(m, L, tuple(q0), (q0[0] + math.cos(ang2) * ln2, q0[1] + math.sin(ang2) * ln2), rng, k=0.22, segs=3,
+                 jit=3.0)
+        fa = int(round(ARRIVE[k]))
+        if fa <= f < fa + 3:
+            fk.streaks(m, X, Y, TX, TY, 7, 5 + (f - fa) * 3, 12 + (f - fa) * 5, 1.3, (5, 4, 3), seed=seed + k, spin=k)
+        lt.flash_at(L, CV, f, fa, TX, TY, 28, 0.5, 4)
+
+    # ---- finale: a great bolt from the cloud, a giant head rises at the target, bursts
+    F0 = int(round(ARRIVE[-1]))
+    if F0 - 1 <= f < F0 + 3:
+        bolt(m, L, (TX - 20, EY + 30), (TX, TY), rng, k=0.7, segs=10, jit=9.0)
+        lt.glow(L, CV, TX, TY - 14, 40, 0.4)
+    if F0 - 2 <= f < F0 + 8:
+        t = (f - (F0 - 2)) / 10
+        sc = 4.0 * (0.5 + 0.5 * float(smooth(0, 0.4, t)))
+        hx, hy = TX - 40, TY - 36 - 8 * float(smooth(0, 0.5, t))
+        layer = np.full((H, W), -1, np.int8)
+        draw_head(layer, L, hx, hy, 0.15, sc, float(smooth(0.2, 0.6, t)), f, 99, 1.0)
+        layer = fl.outline(layer, 0)
+        if t > 0.7:
+            layer = fk.fade(layer, (t - 0.7) / 0.3)
+        m[layer >= 0] = layer[layer >= 0]
+        for _ in range(3):
+            ang2 = rng.uniform(0, TAU)
+            bolt(m, L, (hx + 14, hy), (hx + 14 + math.cos(ang2) * 40, hy + math.sin(ang2) * 26), rng, k=0.25)
+    lt.flash_at(L, CV, f, F0 + 6, TX, TY - 10, 46, 1.0, 9)
+    lt.flash_at(L, CV, f, F0 + 6, TX, TY, 18, 1.0, 5)
+    if F0 + 6 <= f < F0 + 12:
+        k_ = (f - F0 - 6) / 6
+        R = 10 + 34 * k_
+        dd = np.abs(np.hypot((X - TX) / R, (Y - TY + 2) / (R * 0.8)) - 1) * R
+        m[dd < 1.1] = 5 if k_ < 0.5 else 4
+        fk.streaks(m, X, Y, TX, TY, 12, 8 + k_ * 10, 20 + k_ * 16, 1.6, (5, 4, 3), seed=seed + 50, spin=1.3)
+    fk.ground_impact(m, X, Y, f - (F0 + 6), FPS, (1, 2, 3), (7, 8, 9), cx=TX, cy=0.0, r=22.0, weight="finisher",
+                     life=0.75, seed=seed)
+
+    # ---- sparks after the burst, and last wisps under the thinning cloud
+    for i in range(90):
+        t0 = F0 + 6 + 4 * fk.hsh(i, seed + 3)
+        age = f - t0
+        life = 7 + 6 * fk.hsh(i, seed + 4)
+        if 0 <= age < life:
+            a = TAU * fk.hsh(i, seed + 5)
+            sp = 30 + 40 * fk.hsh(i, seed + 6)
+            tt = age / FPS
+            px = TX + math.cos(a) * sp * tt
+            py = TY + math.sin(a) * sp * 0.7 * tt - 25 * tt
+            fl.put(m, px + PX - 0.5, py + PY - 0.5, 5 if age < life * 0.3 else 4 if age < life * 0.65 else 3)
+            lt.glow(L, CV, px, py, 4, 0.2 * (1 - age / life) * lt.flicker(i, f, seed))
+
+    col = pfx.paint(m, PAL)
+    light = pfx.tint(np.repeat(np.clip(L, 0, 1)[..., None], 3, -1), LIGHT_RAMP)
+    return col, light, L
+
+
+def with_caster(frame_rgba, f):
+    try:
+        import rig
+        r = rig.load(str(HERE.parent.parent / "assets" / "casters" / "vo_tu_topdown"))
+        ch = r.place((H, W), PIVOT, "cast", min(9, f // 5) if f < 108 else 9, "east")
+        out = ch.copy()
+        a = frame_rgba[..., 3:4] / 255.0
+        out[..., :3] = (frame_rgba[..., :3] * a + ch[..., :3] * (1 - a)).astype(np.uint8)
+        out[..., 3] = np.maximum(frame_rgba[..., 3], ch[..., 3])
+        return out
+    except Exception as e:
+        print("caster preview skipped:", e)
+        return frame_rgba
+
+
+def main():
+    OUT.mkdir(exist_ok=True)
+    peak = "--peak" in sys.argv
+    frames = [30, 37, 64, 90, 112] if peak else range(N)
+    cols, lights, finals, Ls = [], [], [], []
+    for f in frames:
+        c, l, Lr = render(f)
+        cols.append(c); lights.append(l); Ls.append(Lr); finals.append(pfx.composite(c, l))
+    previews = [with_caster(fr, f) for fr, f in zip(finals, frames)]
+    if peak:
+        from PIL import Image
+        big = np.concatenate([pfx.composite(p, np.zeros((H, W, 3)), "#3e7b3a")[..., :3] for p in previews], axis=0)
+        Image.fromarray(big).resize((big.shape[1] * 2, big.shape[0] * 2), Image.NEAREST).save(OUT / "peak_2x.png")
+        print("peak written")
+        return
+    covers, means = [], []
+    for c, Lr in zip(cols, Ls):
+        ys, xs = np.nonzero(c[..., 3])
+        if len(ys):
+            b = np.clip(Lr[ys.min():ys.max() + 1, xs.min():xs.max() + 1], 0, 1)
+            if (b > 0.03).any():
+                covers.append((b > 0.03).mean()); means.append(b[b > 0.03].mean())
+    print(f"light: cover {np.median(covers) * 100:.0f} %  mean {np.median(means):.3f}  (strong: 0.08-0.14)")
+    F0 = int(round(ARRIVE[-1]))
+    hits = [ex.hit(int(round(ARRIVE[k])), FPS, weight="light", dir=60) for k in range(2, ND, 3)]
+    hits.append(ex.hit(F0 + 6, FPS, weight="finisher", dir=80))
+    poses = [ex.pose(0.0, "channel"), ex.pose(THRUST / FPS, "release", "snap"), ex.pose(3.8, "recover")]
+    meta = ex.write(OUT, NAME, finals, FPS, PIVOT, False, light=lights, color=cols, states=STATES, hits=hits,
+                    poses=poses, target={"x": TX, "react": "launch"},
+                    extra=dict(fc.meta("side", W, H, PIVOT, target=[TX + PX, PY]), glow="strong"))
+    fc.check(meta["meta"]["beanfx"])
+    pfx.gif(previews, OUT / f"{NAME}.gif", FPS, scale=2)
+    pfx.contact(OUT / "contact.png", previews, FPS)
+    problems = ex.check(finals, lights, loop=False, src=__file__)
+    problems += ex.check_seeds(lambda f, sd: render(f, seed=sd)[0], N)
+    problems += ex.check_act(meta["meta"]["beanfx"]["act"], N, FPS, False)
+    try:
+        ex.page(OUT / f"{NAME}.json")
+    except Exception as e:
+        print("page skipped:", e)
+    if problems:
+        print("\n".join(problems))
+        sys.exit(1)
+    print(f"ok: {N} frames, out/{NAME}.png")
+
+
+if __name__ == "__main__":
+    main()

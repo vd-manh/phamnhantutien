@@ -1,0 +1,43 @@
+{
+ "tt": 1,
+ "name": "phat_no_hoa_lien",
+ "w": 206,
+ "h": 174,
+ "frames": 120,
+ "columns": 19,
+ "fps": 24.0,
+ "speed": 1.0,
+ "loop": false,
+ "pivot": [
+  44.0,
+  152.0
+ ],
+ "target": [
+  142.0,
+  150.0
+ ],
+ "states": {
+  "summon": [
+   0.0,
+   1.5
+  ],
+  "fuse": [
+   1.5,
+   3.0
+  ],
+  "squeeze": [
+   3.0,
+   3.292
+  ],
+  "hurl": [
+   3.292,
+   4.292
+  ],
+  "fade": [
+   4.292,
+   5.0
+  ]
+ },
+ "hits": [],
+ "duration": 5.0
+}

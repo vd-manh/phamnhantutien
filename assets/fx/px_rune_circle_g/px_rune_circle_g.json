@@ -1,0 +1,20 @@
+{
+ "tt": 1,
+ "name": "px_rune_circle_g",
+ "w": 116,
+ "h": 88,
+ "frames": 60,
+ "columns": 35,
+ "fps": 15.0,
+ "speed": 1.0,
+ "loop": true,
+ "pivot": [
+  58,
+  68
+ ],
+ "target": null,
+ "states": {},
+ "hits": [],
+ "duration": 4.0,
+ "source": "pixelfx arcane/rune-circle (MIT, github.com/patch-gg/pixelfx), đổi màu hue 145.0"
+}

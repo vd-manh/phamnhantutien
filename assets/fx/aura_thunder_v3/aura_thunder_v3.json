@@ -1,0 +1,19 @@
+{
+ "tt": 1,
+ "name": "aura_thunder_v3",
+ "w": 114,
+ "h": 143,
+ "frames": 60,
+ "columns": 35,
+ "fps": 30.0,
+ "speed": 1.0,
+ "loop": true,
+ "pivot": [
+  57,
+  107
+ ],
+ "target": null,
+ "states": {},
+ "hits": [],
+ "duration": 2.0
+}

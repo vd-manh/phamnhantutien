@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Thanh Vân Tu Tiên</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="game"></div>
+
+  <div id="hud">
+    <div id="panel">
+      <div id="realm">Luyện Khí · Sơ kỳ</div>
+      <div class="row"><label>Khí huyết</label><div class="bar hp"><i id="hp-f"></i><span id="hp-t"></span></div></div>
+      <div class="row"><label>Linh lực</label><div class="bar mp"><i id="mp-f"></i><span id="mp-t"></span></div></div>
+      <div class="row"><label>Tu vi</label><div class="bar xp"><i id="xp-f"></i><span id="xp-t"></span></div></div>
+      <div id="kills">Yêu thú đã diệt: 0</div>
+      <div id="tod">Ban ngày</div>
+    </div>
+
+    <div id="log"></div>
+    <div id="banner"><div id="banner-title"></div><div id="banner-sub"></div></div>
+    <div id="prompt"></div>
+    <div id="err"></div>
+
+    <div id="hotbar"></div>
+    <div id="tip"></div>
+
+    <div id="help">
+      <b>WASD</b> di chuyển · <b>J</b> đánh · <b>K L U I O</b> chiêu ·
+      giữ <b>SPACE</b> thiền · <b>F</b> ngự kiếm · <b>B</b> độ kiếp · <b>P</b> đổi môn phái · <b>M</b> âm thanh
+      <button id="btn-switch" type="button">Đổi môn phái</button>
+      <button id="btn-reset" type="button">Chơi lại</button>
+    </div>
+  </div>
+
+  <div id="select">
+    <div class="sel-title">THANH VÂN TU TIÊN</div>
+    <div class="sel-sub">Chọn con đường tu luyện</div>
+    <div id="sel-gender"></div>
+    <div id="sel-cards"></div>
+    <div id="sel-continue"></div>
+    <div class="sel-hint">← → chọn tông môn · G đổi nam / nữ · Enter bắt đầu</div>
+  </div>
+
+  <script>
+    window.addEventListener('error', function (e) {
+      var el = document.getElementById('err');
+      if (el) { el.textContent = 'Lỗi: ' + e.message + ' (' + (e.filename || '').split('/').pop() + ':' + e.lineno + ')'; el.style.display = 'block'; }
+    });
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.80.1/phaser.min.js"></script>
+  <script src="src/data.js"></script>
+  <script src="src/casters.js"></script>
+  <script src="src/pixel.js"></script>
+  <script src="src/textures.js"></script>
+  <script src="src/sfx.js"></script>
+  <script src="src/hud.js"></script>
+  <script src="src/fx.js"></script>
+  <script src="src/lighting.js"></script>
+  <script src="src/skills.js"></script>
+  <script src="src/skill_dai_canh.js"></script>
+  <script src="src/skill_thanh_nhien.js"></script>
+  <script src="src/scenes/boot.js"></script>
+  <script src="src/scenes/select.js"></script>
+  <script src="src/scenes/world.js"></script>
+  <script src="src/main.js"></script>
+</body>
+</html>

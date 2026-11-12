@@ -1,0 +1,19 @@
+# môi trường Python (tạo lại bằng setup.bat)
+.venv/
+__pycache__/
+*.pyc
+
+# ảnh render trung gian của bản nháp beanfx (chạy lại script để sinh)
+drafts/*/out/
+
+# KHÔNG đưa lên kho:
+# - video tham khảo của game khác (có bản quyền)
+*.mp4
+# - gói gốc hero-128 (giấy phép cấm phân phối lại asset gốc; game chỉ dùng bản đã chỉnh trong assets/)
+*-hero-128-assets.zip
+
+# rác hệ điều hành / trình soạn thảo
+Thumbs.db
+desktop.ini
+.DS_Store
+.vscode/

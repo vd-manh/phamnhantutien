@@ -1,0 +1,385 @@
+{
+ "name": "kiem_ai",
+ "view": "top-down",
+ "fps": 10,
+ "directions": [
+  "east",
+  "south-east",
+  "south",
+  "south-west",
+  "west",
+  "north-west",
+  "north",
+  "north-east"
+ ],
+ "pixel_scale": 1,
+ "height": 74,
+ "source": "Sprite sheet tạo bằng AI (thư mục sword/), đóng gói bằng tools/ai_sheet.py",
+ "anims": {
+  "idle": {
+   "frame": [
+    128,
+    104
+   ],
+   "frames": 6,
+   "fps": 6,
+   "loop": true,
+   "pivot": [
+    64,
+    96
+   ],
+   "ms": [
+    167,
+    167,
+    167,
+    167,
+    167,
+    167
+   ],
+   "sheets": {
+    "east": "idle_east.png",
+    "south-east": "idle_south-east.png",
+    "south": "idle_south.png",
+    "south-west": "idle_south-west.png",
+    "west": "idle_west.png",
+    "north-west": "idle_north-west.png",
+    "north": "idle_north.png",
+    "north-east": "idle_north-east.png"
+   }
+  },
+  "run": {
+   "frame": [
+    128,
+    104
+   ],
+   "frames": 6,
+   "fps": 11,
+   "loop": true,
+   "pivot": [
+    64,
+    96
+   ],
+   "ms": [
+    91,
+    91,
+    91,
+    91,
+    91,
+    91
+   ],
+   "sheets": {
+    "east": "run_east.png",
+    "south-east": "run_south-east.png",
+    "south": "run_south.png",
+    "south-west": "run_south-west.png",
+    "west": "run_west.png",
+    "north-west": "run_north-west.png",
+    "north": "run_north.png",
+    "north-east": "run_north-east.png"
+   }
+  },
+  "attack1": {
+   "frame": [
+    128,
+    104
+   ],
+   "frames": 6,
+   "fps": 18,
+   "loop": false,
+   "pivot": [
+    64,
+    96
+   ],
+   "ms": [
+    56,
+    56,
+    56,
+    56,
+    56,
+    56
+   ],
+   "sheets": {
+    "east": "attack1_east.png",
+    "south-east": "attack1_south-east.png",
+    "south": "attack1_south.png",
+    "south-west": "attack1_south-west.png",
+    "west": "attack1_west.png",
+    "north-west": "attack1_north-west.png",
+    "north": "attack1_north.png",
+    "north-east": "attack1_north-east.png"
+   },
+   "contact": [
+    2
+   ]
+  },
+  "attack2": {
+   "frame": [
+    128,
+    104
+   ],
+   "frames": 5,
+   "fps": 18,
+   "loop": false,
+   "pivot": [
+    64,
+    96
+   ],
+   "ms": [
+    56,
+    56,
+    56,
+    56,
+    56
+   ],
+   "sheets": {
+    "east": "attack2_east.png",
+    "south-east": "attack2_south-east.png",
+    "south": "attack2_south.png",
+    "south-west": "attack2_south-west.png",
+    "west": "attack2_west.png",
+    "north-west": "attack2_north-west.png",
+    "north": "attack2_north.png",
+    "north-east": "attack2_north-east.png"
+   },
+   "contact": [
+    2
+   ]
+  },
+  "attack3": {
+   "frame": [
+    128,
+    104
+   ],
+   "frames": 6,
+   "fps": 13,
+   "loop": false,
+   "pivot": [
+    64,
+    96
+   ],
+   "ms": [
+    77,
+    77,
+    77,
+    77,
+    77,
+    77
+   ],
+   "sheets": {
+    "east": "attack3_east.png",
+    "south-east": "attack3_south-east.png",
+    "south": "attack3_south.png",
+    "south-west": "attack3_south-west.png",
+    "west": "attack3_west.png",
+    "north-west": "attack3_north-west.png",
+    "north": "attack3_north.png",
+    "north-east": "attack3_north-east.png"
+   },
+   "contact": [
+    3
+   ]
+  },
+  "cast": {
+   "frame": [
+    128,
+    104
+   ],
+   "frames": 2,
+   "fps": 6,
+   "loop": false,
+   "pivot": [
+    64,
+    96
+   ],
+   "ms": [
+    167,
+    167
+   ],
+   "sheets": {
+    "east": "cast_east.png",
+    "south-east": "cast_south-east.png",
+    "south": "cast_south.png",
+    "south-west": "cast_south-west.png",
+    "west": "cast_west.png",
+    "north-west": "cast_north-west.png",
+    "north": "cast_north.png",
+    "north-east": "cast_north-east.png"
+   },
+   "contact": [
+    1
+   ]
+  },
+  "cast_point": {
+   "frame": [
+    128,
+    104
+   ],
+   "frames": 4,
+   "fps": 10,
+   "loop": false,
+   "pivot": [
+    64,
+    96
+   ],
+   "ms": [
+    100,
+    100,
+    100,
+    100
+   ],
+   "sheets": {
+    "east": "cast_point_east.png",
+    "south-east": "cast_point_south-east.png",
+    "south": "cast_point_south.png",
+    "south-west": "cast_point_south-west.png",
+    "west": "cast_point_west.png",
+    "north-west": "cast_point_north-west.png",
+    "north": "cast_point_north.png",
+    "north-east": "cast_point_north-east.png"
+   }
+  },
+  "hurt": {
+   "frame": [
+    128,
+    104
+   ],
+   "frames": 3,
+   "fps": 12,
+   "loop": false,
+   "pivot": [
+    64,
+    96
+   ],
+   "ms": [
+    83,
+    83,
+    83
+   ],
+   "sheets": {
+    "east": "hurt_east.png",
+    "south-east": "hurt_south-east.png",
+    "south": "hurt_south.png",
+    "south-west": "hurt_south-west.png",
+    "west": "hurt_west.png",
+    "north-west": "hurt_north-west.png",
+    "north": "hurt_north.png",
+    "north-east": "hurt_north-east.png"
+   }
+  },
+  "dead": {
+   "frame": [
+    128,
+    104
+   ],
+   "frames": 6,
+   "fps": 9,
+   "loop": false,
+   "pivot": [
+    64,
+    96
+   ],
+   "ms": [
+    111,
+    111,
+    111,
+    111,
+    111,
+    111
+   ],
+   "sheets": {
+    "east": "dead_east.png",
+    "south-east": "dead_south-east.png",
+    "south": "dead_south.png",
+    "south-west": "dead_south-west.png",
+    "west": "dead_west.png",
+    "north-west": "dead_north-west.png",
+    "north": "dead_north.png",
+    "north-east": "dead_north-east.png"
+   }
+  },
+  "fly_up": {
+   "frame": [
+    128,
+    104
+   ],
+   "frames": 3,
+   "fps": 8,
+   "loop": false,
+   "pivot": [
+    64,
+    96
+   ],
+   "ms": [
+    125,
+    125,
+    125
+   ],
+   "sheets": {
+    "east": "fly_up_east.png",
+    "south-east": "fly_up_south-east.png",
+    "south": "fly_up_south.png",
+    "south-west": "fly_up_south-west.png",
+    "west": "fly_up_west.png",
+    "north-west": "fly_up_north-west.png",
+    "north": "fly_up_north.png",
+    "north-east": "fly_up_north-east.png"
+   }
+  },
+  "fly": {
+   "frame": [
+    128,
+    104
+   ],
+   "frames": 3,
+   "fps": 6,
+   "loop": true,
+   "pivot": [
+    64,
+    96
+   ],
+   "ms": [
+    167,
+    167,
+    167
+   ],
+   "sheets": {
+    "east": "fly_east.png",
+    "south-east": "fly_south-east.png",
+    "south": "fly_south.png",
+    "south-west": "fly_south-west.png",
+    "west": "fly_west.png",
+    "north-west": "fly_north-west.png",
+    "north": "fly_north.png",
+    "north-east": "fly_north-east.png"
+   }
+  },
+  "fly_land": {
+   "frame": [
+    128,
+    104
+   ],
+   "frames": 3,
+   "fps": 8,
+   "loop": false,
+   "pivot": [
+    64,
+    96
+   ],
+   "ms": [
+    125,
+    125,
+    125
+   ],
+   "sheets": {
+    "east": "fly_land_east.png",
+    "south-east": "fly_land_south-east.png",
+    "south": "fly_land_south.png",
+    "south-west": "fly_land_south-west.png",
+    "west": "fly_land_west.png",
+    "north-west": "fly_land_north-west.png",
+    "north": "fly_land_north.png",
+    "north-east": "fly_land_north-east.png"
+   }
+  }
+ }
+}

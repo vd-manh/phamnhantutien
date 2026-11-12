@@ -1,0 +1,38 @@
+{
+ "tt": 1,
+ "name": "van_kiem_quy_tong_v5",
+ "w": 516,
+ "h": 362,
+ "frames": 70,
+ "columns": 7,
+ "fps": 10.0,
+ "speed": 1.4,
+ "loop": false,
+ "pivot": [
+  120,
+  312
+ ],
+ "target": null,
+ "states": {
+  "rise": [
+   0.0,
+   2.0
+  ],
+  "swirl": [
+   2.0,
+   4.6
+  ],
+  "plunge": [
+   4.6,
+   5.3
+  ],
+  "return": [
+   5.3,
+   7.0
+  ]
+ },
+ "hits": [
+  5.2
+ ],
+ "duration": 7.0
+}

@@ -1,0 +1,5 @@
+# thư viện cho các công cụ trong tools/ và drafts/ (game không cần, chỉ cần Python để chạy server)
+numpy
+pillow
+opencv-python-headless
+scipy

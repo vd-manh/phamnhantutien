@@ -1,0 +1,151 @@
+{
+ "name": "phap_h4",
+ "view": "top-down",
+ "fps": 12,
+ "directions": [
+  "east",
+  "south-east",
+  "south",
+  "south-west",
+  "west",
+  "north-west",
+  "north",
+  "north-east"
+ ],
+ "pixel_scale": 1,
+ "height": 120,
+ "scale": 0.3,
+ "source": "hero-128 (gegx.itch.io) đổi màu + chi tiết tu tiên (tools/hero_sects.py)",
+ "anims": {
+  "idle": {
+   "frame": [
+    184,
+    184
+   ],
+   "frames": 12,
+   "fps": 12,
+   "loop": true,
+   "sheets": {
+    "east": "idle_east.png",
+    "south-east": "idle_south-east.png",
+    "south": "idle_south.png",
+    "south-west": "idle_south-west.png",
+    "west": "idle_west.png",
+    "north-west": "idle_north-west.png",
+    "north": "idle_north.png",
+    "north-east": "idle_north-east.png"
+   },
+   "pivot": [
+    92,
+    158
+   ]
+  },
+  "run": {
+   "frame": [
+    184,
+    184
+   ],
+   "frames": 12,
+   "fps": 14,
+   "loop": true,
+   "sheets": {
+    "east": "run_east.png",
+    "south-east": "run_south-east.png",
+    "south": "run_south.png",
+    "south-west": "run_south-west.png",
+    "west": "run_west.png",
+    "north-west": "run_north-west.png",
+    "north": "run_north.png",
+    "north-east": "run_north-east.png"
+   },
+   "pivot": [
+    92,
+    158
+   ]
+  },
+  "cast": {
+   "alias": "idle",
+   "frames": 4,
+   "fps": 12,
+   "loop": false,
+   "frame": [
+    184,
+    184
+   ],
+   "pivot": [
+    92,
+    158
+   ]
+  },
+  "attack1": {
+   "alias": "idle",
+   "frames": 4,
+   "fps": 12,
+   "loop": false,
+   "frame": [
+    184,
+    184
+   ],
+   "pivot": [
+    92,
+    158
+   ]
+  },
+  "attack2": {
+   "alias": "idle",
+   "frames": 4,
+   "fps": 12,
+   "loop": false,
+   "frame": [
+    184,
+    184
+   ],
+   "pivot": [
+    92,
+    158
+   ]
+  },
+  "attack3": {
+   "alias": "idle",
+   "frames": 4,
+   "fps": 12,
+   "loop": false,
+   "frame": [
+    184,
+    184
+   ],
+   "pivot": [
+    92,
+    158
+   ]
+  },
+  "hurt": {
+   "alias": "idle",
+   "frames": 2,
+   "fps": 12,
+   "loop": false,
+   "frame": [
+    184,
+    184
+   ],
+   "pivot": [
+    92,
+    158
+   ]
+  },
+  "dead": {
+   "alias": "idle",
+   "frames": 6,
+   "fps": 12,
+   "loop": false,
+   "frame": [
+    184,
+    184
+   ],
+   "pivot": [
+    92,
+    158
+   ]
+  }
+ }
+}

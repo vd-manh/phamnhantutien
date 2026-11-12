@@ -1,0 +1,422 @@
+{
+ "name": "kiem_m0",
+ "view": "top-down",
+ "fps": 8,
+ "directions": [
+  "east",
+  "south-east",
+  "south",
+  "south-west",
+  "west",
+  "north-west",
+  "north",
+  "north-east"
+ ],
+ "pixel_scale": 1,
+ "height": 64,
+ "source": "Nhân vật thiết kế riêng, vẽ bằng code (tools/chibi_char.py)",
+ "anims": {
+  "idle": {
+   "frame": [
+    144,
+    128
+   ],
+   "frames": 6,
+   "fps": 7,
+   "loop": true,
+   "sheets": {
+    "east": "idle_east.png",
+    "south-east": "idle_south-east.png",
+    "south": "idle_south.png",
+    "south-west": "idle_south-west.png",
+    "west": "idle_west.png",
+    "north-west": "idle_north-west.png",
+    "north": "idle_north.png",
+    "north-east": "idle_north-east.png"
+   },
+   "pivot": [
+    72,
+    100
+   ]
+  },
+  "run": {
+   "frame": [
+    144,
+    128
+   ],
+   "frames": 8,
+   "fps": 14,
+   "loop": true,
+   "sheets": {
+    "east": "run_east.png",
+    "south-east": "run_south-east.png",
+    "south": "run_south.png",
+    "south-west": "run_south-west.png",
+    "west": "run_west.png",
+    "north-west": "run_north-west.png",
+    "north": "run_north.png",
+    "north-east": "run_north-east.png"
+   },
+   "pivot": [
+    72,
+    100
+   ]
+  },
+  "cast": {
+   "frame": [
+    144,
+    128
+   ],
+   "frames": 10,
+   "fps": 16,
+   "loop": false,
+   "sheets": {
+    "east": "cast_east.png",
+    "south-east": "cast_south-east.png",
+    "south": "cast_south.png",
+    "south-west": "cast_south-west.png",
+    "west": "cast_west.png",
+    "north-west": "cast_north-west.png",
+    "north": "cast_north.png",
+    "north-east": "cast_north-east.png"
+   },
+   "pivot": [
+    72,
+    100
+   ],
+   "contact": [
+    6
+   ],
+   "ms": [
+    62.5,
+    62.5,
+    62.5,
+    62.5,
+    62.5,
+    62.5,
+    62.5,
+    62.5,
+    62.5,
+    62.5
+   ],
+   "emit": {
+    "frames": [
+     6
+    ],
+    "point": {
+     "east": [
+      15.9,
+      -31.3
+     ],
+     "south-east": [
+      6.5,
+      -31.3
+     ],
+     "south": [
+      -6.7,
+      -31.3
+     ],
+     "south-west": [
+      -6.5,
+      -31.3
+     ],
+     "west": [
+      -15.9,
+      -31.3
+     ],
+     "north-west": [
+      -16.0,
+      -31.3
+     ],
+     "north": [
+      6.7,
+      -31.3
+     ],
+     "north-east": [
+      16.0,
+      -31.3
+     ]
+    },
+    "at": "hand"
+   }
+  },
+  "attack1": {
+   "frame": [
+    144,
+    128
+   ],
+   "frames": 9,
+   "fps": 18,
+   "loop": false,
+   "sheets": {
+    "east": "attack1_east.png",
+    "south-east": "attack1_south-east.png",
+    "south": "attack1_south.png",
+    "south-west": "attack1_south-west.png",
+    "west": "attack1_west.png",
+    "north-west": "attack1_north-west.png",
+    "north": "attack1_north.png",
+    "north-east": "attack1_north-east.png"
+   },
+   "pivot": [
+    72,
+    100
+   ],
+   "contact": [
+    3
+   ],
+   "ms": [
+    55.56,
+    55.56,
+    55.56,
+    55.56,
+    55.56,
+    55.56,
+    55.56,
+    55.56,
+    55.56
+   ],
+   "emit": {
+    "frames": [
+     3
+    ],
+    "point": {
+     "east": [
+      16.4,
+      -31.7
+     ],
+     "south-east": [
+      6.6,
+      -31.7
+     ],
+     "south": [
+      -7.0,
+      -31.7
+     ],
+     "south-west": [
+      -6.6,
+      -31.7
+     ],
+     "west": [
+      -16.4,
+      -31.7
+     ],
+     "north-west": [
+      -16.5,
+      -31.7
+     ],
+     "north": [
+      7.0,
+      -31.7
+     ],
+     "north-east": [
+      16.5,
+      -31.7
+     ]
+    },
+    "at": "hand"
+   }
+  },
+  "attack2": {
+   "frame": [
+    144,
+    128
+   ],
+   "frames": 9,
+   "fps": 18,
+   "loop": false,
+   "sheets": {
+    "east": "attack2_east.png",
+    "south-east": "attack2_south-east.png",
+    "south": "attack2_south.png",
+    "south-west": "attack2_south-west.png",
+    "west": "attack2_west.png",
+    "north-west": "attack2_north-west.png",
+    "north": "attack2_north.png",
+    "north-east": "attack2_north-east.png"
+   },
+   "pivot": [
+    72,
+    100
+   ],
+   "contact": [
+    3
+   ],
+   "ms": [
+    55.56,
+    55.56,
+    55.56,
+    55.56,
+    55.56,
+    55.56,
+    55.56,
+    55.56,
+    55.56
+   ],
+   "emit": {
+    "frames": [
+     3
+    ],
+    "point": {
+     "east": [
+      12.1,
+      -32.1
+     ],
+     "south-east": [
+      14.5,
+      -32.1
+     ],
+     "south": [
+      8.5,
+      -32.1
+     ],
+     "south-west": [
+      -14.5,
+      -32.1
+     ],
+     "west": [
+      -12.1,
+      -32.1
+     ],
+     "north-west": [
+      -2.6,
+      -32.1
+     ],
+     "north": [
+      -8.5,
+      -32.1
+     ],
+     "north-east": [
+      2.6,
+      -32.1
+     ]
+    },
+    "at": "hand"
+   }
+  },
+  "attack3": {
+   "frame": [
+    144,
+    128
+   ],
+   "frames": 10,
+   "fps": 18,
+   "loop": false,
+   "sheets": {
+    "east": "attack3_east.png",
+    "south-east": "attack3_south-east.png",
+    "south": "attack3_south.png",
+    "south-west": "attack3_south-west.png",
+    "west": "attack3_west.png",
+    "north-west": "attack3_north-west.png",
+    "north": "attack3_north.png",
+    "north-east": "attack3_north-east.png"
+   },
+   "pivot": [
+    72,
+    100
+   ],
+   "contact": [
+    4
+   ],
+   "ms": [
+    55.56,
+    55.56,
+    55.56,
+    55.56,
+    55.56,
+    55.56,
+    55.56,
+    55.56,
+    55.56,
+    55.56
+   ],
+   "emit": {
+    "frames": [
+     4
+    ],
+    "point": {
+     "east": [
+      14.9,
+      -37.1
+     ],
+     "south-east": [
+      5.4,
+      -37.1
+     ],
+     "south": [
+      -7.3,
+      -37.1
+     ],
+     "south-west": [
+      -5.4,
+      -37.1
+     ],
+     "west": [
+      -14.9,
+      -37.1
+     ],
+     "north-west": [
+      -15.7,
+      -37.1
+     ],
+     "north": [
+      7.3,
+      -37.1
+     ],
+     "north-east": [
+      15.7,
+      -37.1
+     ]
+    },
+    "at": "hand"
+   }
+  },
+  "hurt": {
+   "frame": [
+    144,
+    128
+   ],
+   "frames": 2,
+   "fps": 8,
+   "loop": false,
+   "sheets": {
+    "east": "hurt_east.png",
+    "south-east": "hurt_south-east.png",
+    "south": "hurt_south.png",
+    "south-west": "hurt_south-west.png",
+    "west": "hurt_west.png",
+    "north-west": "hurt_north-west.png",
+    "north": "hurt_north.png",
+    "north-east": "hurt_north-east.png"
+   },
+   "pivot": [
+    72,
+    100
+   ]
+  },
+  "dead": {
+   "frame": [
+    144,
+    128
+   ],
+   "frames": 6,
+   "fps": 8,
+   "loop": false,
+   "sheets": {
+    "east": "dead_east.png",
+    "south-east": "dead_south-east.png",
+    "south": "dead_south.png",
+    "south-west": "dead_south-west.png",
+    "west": "dead_west.png",
+    "north-west": "dead_north-west.png",
+    "north": "dead_north.png",
+    "north-east": "dead_north-east.png"
+   },
+   "pivot": [
+    72,
+    100
+   ]
+  }
+ }
+}

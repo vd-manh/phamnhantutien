@@ -1,0 +1,20 @@
+{
+ "tt": 1,
+ "name": "px_time_stop_g",
+ "w": 158,
+ "h": 134,
+ "frames": 109,
+ "columns": 25,
+ "fps": 30.0,
+ "speed": 1.0,
+ "loop": false,
+ "pivot": [
+  79,
+  116
+ ],
+ "target": null,
+ "states": {},
+ "hits": [],
+ "duration": 3.633,
+ "source": "pixelfx arcane/time-stop (MIT, github.com/patch-gg/pixelfx), đổi màu hue 145.0"
+}

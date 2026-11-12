@@ -1,0 +1,19 @@
+{
+ "tt": 1,
+ "name": "kim_chung_aura",
+ "w": 52,
+ "h": 78,
+ "frames": 30,
+ "columns": 30,
+ "fps": 30.0,
+ "speed": 1.0,
+ "loop": true,
+ "pivot": [
+  26,
+  68
+ ],
+ "target": null,
+ "states": {},
+ "hits": [],
+ "duration": 1.0
+}

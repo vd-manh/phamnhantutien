@@ -1,0 +1,135 @@
+{
+  "effects": {
+    "sigil_thunder": {
+      "json": "sigil_thunder_strike/sigil_thunder_strike.json",
+      "color": "sigil_thunder_strike/sigil_thunder_strike_color.png",
+      "light": "sigil_thunder_strike/sigil_thunder_strike_light.png"
+    },
+    "wind_burst": {
+      "sheet": "wind_burst/wind_burst.png",
+      "json": "wind_burst/wind_burst.json",
+      "w": 123,
+      "h": 82
+    },
+    "mua_bang_v2": {
+      "sheet": "mua_bang_v2/mua_bang_v2.png",
+      "json": "mua_bang_v2/mua_bang_v2.json",
+      "w": 122,
+      "h": 137
+    },
+    "aura_thunder_v3": {
+      "sheet": "aura_thunder_v3/aura_thunder_v3.png",
+      "json": "aura_thunder_v3/aura_thunder_v3.json",
+      "w": 114,
+      "h": 143
+    },
+    "phi_long_tai_thien": {
+      "sheet": "phi_long_tai_thien/phi_long_tai_thien.png",
+      "json": "phi_long_tai_thien/phi_long_tai_thien.json",
+      "w": 241,
+      "h": 185
+    },
+    "star_dragon_strike": {
+      "sheet": "star_dragon_strike/star_dragon_strike.png",
+      "json": "star_dragon_strike/star_dragon_strike.json",
+      "w": 346,
+      "h": 137
+    },
+    "dot_pha_hoa_than": {
+      "sheet": "dot_pha_hoa_than/dot_pha_hoa_than.png",
+      "json": "dot_pha_hoa_than/dot_pha_hoa_than.json",
+      "w": 239,
+      "h": 228
+    },
+    "van_kiem_quy_tong_v5": {
+      "sheet": "van_kiem_quy_tong_v5/van_kiem_quy_tong_v5.png",
+      "json": "van_kiem_quy_tong_v5/van_kiem_quy_tong_v5.json",
+      "w": 516,
+      "h": 362
+    },
+    "phat_no_hoa_lien": {
+      "sheet": "phat_no_hoa_lien/phat_no_hoa_lien.png",
+      "json": "phat_no_hoa_lien/phat_no_hoa_lien.json",
+      "w": 206,
+      "h": 174
+    },
+    "van_hon_phien": {
+      "sheet": "van_hon_phien/van_hon_phien.png",
+      "json": "van_hon_phien/van_hon_phien.json",
+      "w": 296,
+      "h": 256
+    },
+    "cuu_long_de_vuong": {
+      "sheet": "cuu_long_de_vuong/cuu_long_de_vuong.png",
+      "json": "cuu_long_de_vuong/cuu_long_de_vuong.json",
+      "w": 362,
+      "h": 204
+    },
+    "kim_chung_trao": {
+      "sheet": "kim_chung_trao/kim_chung_trao.png",
+      "json": "kim_chung_trao/kim_chung_trao.json",
+      "w": 134,
+      "h": 172
+    },
+    "kim_chung_aura": {
+      "sheet": "kim_chung_aura/kim_chung_aura.png",
+      "json": "kim_chung_aura/kim_chung_aura.json",
+      "w": 52,
+      "h": 78
+    },
+    "giang_long_chuong": {
+      "sheet": "giang_long_chuong/giang_long_chuong.png",
+      "json": "giang_long_chuong/giang_long_chuong.json",
+      "w": 283,
+      "h": 288
+    },
+    "px_rune_circle_g": {
+      "sheet": "px_rune_circle_g/px_rune_circle_g.png",
+      "json": "px_rune_circle_g/px_rune_circle_g.json",
+      "w": 116,
+      "h": 88
+    },
+    "px_circle_cast_g": {
+      "sheet": "px_circle_cast_g/px_circle_cast_g.png",
+      "json": "px_circle_cast_g/px_circle_cast_g.json",
+      "w": 172,
+      "h": 220
+    },
+    "px_lightning_strike_g": {
+      "sheet": "px_lightning_strike_g/px_lightning_strike_g.png",
+      "json": "px_lightning_strike_g/px_lightning_strike_g.json",
+      "w": 232,
+      "h": 264
+    },
+    "px_ground_slam_g": {
+      "sheet": "px_ground_slam_g/px_ground_slam_g.png",
+      "json": "px_ground_slam_g/px_ground_slam_g.json",
+      "w": 239,
+      "h": 174
+    },
+    "px_zap_hit_g": {
+      "sheet": "px_zap_hit_g/px_zap_hit_g.png",
+      "json": "px_zap_hit_g/px_zap_hit_g.json",
+      "w": 124,
+      "h": 96
+    },
+    "px_time_stop_g": {
+      "sheet": "px_time_stop_g/px_time_stop_g.png",
+      "json": "px_time_stop_g/px_time_stop_g.json",
+      "w": 158,
+      "h": 134
+    },
+    "px_slash_g": {
+      "sheet": "px_slash_g/px_slash_g.png",
+      "json": "px_slash_g/px_slash_g.json",
+      "w": 129,
+      "h": 102
+    },
+    "px_slash2_g": {
+      "sheet": "px_slash2_g/px_slash2_g.png",
+      "json": "px_slash2_g/px_slash2_g.json",
+      "w": 120,
+      "h": 100
+    }
+  }
+}

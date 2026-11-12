@@ -1,0 +1,36 @@
+{
+ "tt": 1,
+ "name": "wind_burst",
+ "w": 123,
+ "h": 82,
+ "frames": 60,
+ "columns": 33,
+ "fps": 30.0,
+ "speed": 1.0,
+ "loop": false,
+ "pivot": [
+  62,
+  43
+ ],
+ "target": null,
+ "states": {
+  "gather": [
+   0.0,
+   0.8
+  ],
+  "hold": [
+   0.8,
+   1.0
+  ],
+  "burst": [
+   1.0,
+   1.5
+  ],
+  "dissolve": [
+   1.5,
+   2.0
+  ]
+ },
+ "hits": [],
+ "duration": 2.0
+}

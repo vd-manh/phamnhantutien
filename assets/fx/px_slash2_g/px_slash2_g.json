@@ -1,0 +1,20 @@
+{
+ "tt": 1,
+ "name": "px_slash2_g",
+ "w": 120,
+ "h": 100,
+ "frames": 25,
+ "columns": 25,
+ "fps": 30.0,
+ "speed": 1.0,
+ "loop": false,
+ "pivot": [
+  8,
+  84
+ ],
+ "target": null,
+ "states": {},
+ "hits": [],
+ "duration": 0.833,
+ "source": "pixelfx melee/double-slash (MIT, github.com/patch-gg/pixelfx), đổi màu hue 145.0"
+}

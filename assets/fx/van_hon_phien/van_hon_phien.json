@@ -1,0 +1,43 @@
+{
+ "tt": 1,
+ "name": "van_hon_phien",
+ "w": 296,
+ "h": 256,
+ "frames": 102,
+ "columns": 13,
+ "fps": 15.0,
+ "speed": 1.5,
+ "loop": false,
+ "pivot": [
+  89,
+  246
+ ],
+ "target": [
+  251,
+  214
+ ],
+ "states": {
+  "summon": [
+   0.0,
+   1.0
+  ],
+  "scatter": [
+   1.0,
+   2.8
+  ],
+  "converge": [
+   2.8,
+   3.8
+  ],
+  "strike": [
+   3.8,
+   5.4
+  ],
+  "return": [
+   5.4,
+   6.8
+  ]
+ },
+ "hits": [],
+ "duration": 6.8
+}
