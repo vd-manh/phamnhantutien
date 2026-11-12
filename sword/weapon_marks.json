@@ -1,0 +1,1878 @@
+{
+ "marks": {
+  "back/attack/0": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    79.4,
+    482.5
+   ],
+   "tip": [
+    155.8,
+    502.5
+   ]
+  },
+  "back/attack/1": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    247.1,
+    484.5
+   ],
+   "tip": [
+    293.6,
+    498.2
+   ]
+  },
+  "back/attack/2": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    440.2,
+    480
+   ],
+   "tip": [
+    493,
+    496.2
+   ]
+  },
+  "back/attack/3": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    616.8,
+    483.1
+   ],
+   "tip": [
+    638.5,
+    496.8
+   ]
+  },
+  "back/attack/4": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    792.3,
+    480
+   ],
+   "tip": [
+    834.5,
+    499.3
+   ]
+  },
+  "back/attack/5": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    953.2,
+    481.9
+   ],
+   "tip": [
+    1006,
+    499.9
+   ]
+  },
+  "back/hurt/0": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    143.6,
+    817.9
+   ],
+   "tip": [
+    172.9,
+    852.6
+   ]
+  },
+  "back/hurt/1": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    316.2,
+    822.2
+   ],
+   "tip": [
+    343.9,
+    854.2
+   ]
+  },
+  "back/hurt/3": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    662.3,
+    829.8
+   ],
+   "tip": [
+    690.2,
+    859.6
+   ]
+  },
+  "back/idle/0": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    64,
+    143.5
+   ],
+   "tip": [
+    44.6,
+    170.5
+   ]
+  },
+  "back/idle/1": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    229.6,
+    142
+   ],
+   "tip": [
+    209.5,
+    170.5
+   ]
+  },
+  "back/idle/2": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    394.8,
+    144.1
+   ],
+   "tip": [
+    376.3,
+    170.8
+   ]
+  },
+  "back/idle/3": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    570.5,
+    142.6
+   ],
+   "tip": [
+    551.7,
+    170.5
+   ]
+  },
+  "back/idle/4": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    739.4,
+    141.1
+   ],
+   "tip": [
+    719.1,
+    170.8
+   ]
+  },
+  "back/idle/5": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    907.1,
+    141.7
+   ],
+   "tip": [
+    886.5,
+    171.1
+   ]
+  },
+  "back/run/0": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    48.2,
+    304.7
+   ],
+   "tip": [
+    29.3,
+    326
+   ]
+  },
+  "back/run/1": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    191.1,
+    325.7
+   ],
+   "tip": [
+    210.5,
+    304.7
+   ]
+  },
+  "back/run/2": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    384.2,
+    308.3
+   ],
+   "tip": [
+    367.1,
+    333.3
+   ]
+  },
+  "back/run/3": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    553.1,
+    305.3
+   ],
+   "tip": [
+    536.9,
+    326.5
+   ]
+  },
+  "back/run/4": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    725.8,
+    310
+   ],
+   "tip": [
+    705.7,
+    333
+   ]
+  },
+  "back/run/5": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    893.8,
+    308
+   ],
+   "tip": [
+    879.7,
+    333.9
+   ]
+  },
+  "back_cast/cast/0": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    119.4,
+    493.6
+   ],
+   "tip": [
+    57.4,
+    569.6
+   ]
+  },
+  "back_cast/cast/1": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    485.4,
+    490.6
+   ],
+   "tip": [
+    421.4,
+    571.6
+   ]
+  },
+  "back_cast/cast/2": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    845.4,
+    492.6
+   ],
+   "tip": [
+    778.4,
+    571.6
+   ]
+  },
+  "back_cast/cast/3": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1207.4,
+    491.6
+   ],
+   "tip": [
+    1141.4,
+    569.6
+   ]
+  },
+  "back_cast/cast/4": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1567.4,
+    489.6
+   ],
+   "tip": [
+    1501.4,
+    570.6
+   ]
+  },
+  "back_cast/cast/5": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1930.4,
+    489.6
+   ],
+   "tip": [
+    1865.4,
+    570.6
+   ]
+  },
+  "back_dead/dead/0": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    97.4,
+    463.6
+   ],
+   "tip": [
+    41.4,
+    585.6
+   ]
+  },
+  "back_dead/dead/1": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    443.9,
+    513.6
+   ],
+   "tip": [
+    382.9,
+    599.6
+   ]
+  },
+  "back_dead/dead/2": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    785.4,
+    566.6
+   ],
+   "tip": [
+    696.4,
+    610.6
+   ]
+  },
+  "back_dead/dead/3": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1141.4,
+    567.6
+   ],
+   "tip": [
+    1052.4,
+    612.6
+   ]
+  },
+  "back_dead/dead/4": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1505.4,
+    583.6
+   ],
+   "tip": [
+    1414.4,
+    614.6
+   ]
+  },
+  "back_dead/dead/5": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1869.9,
+    584.6
+   ],
+   "tip": [
+    1791.9,
+    619.6
+   ]
+  },
+  "front/dead/0": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    100,
+    992.8
+   ],
+   "tip": [
+    157.2,
+    995.5
+   ]
+  },
+  "front/dead/1": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    248.9,
+    997.4
+   ],
+   "tip": [
+    321.6,
+    997.2
+   ]
+  },
+  "front/dead/2": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    421.8,
+    1006.1
+   ],
+   "tip": [
+    496.4,
+    995.9
+   ]
+  },
+  "front/dead/3": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    586.9,
+    1006.5
+   ],
+   "tip": [
+    665.9,
+    994.3
+   ]
+  },
+  "front/dead/4": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    757.1,
+    1006.1
+   ],
+   "tip": [
+    833.8,
+    992.3
+   ]
+  },
+  "front/dead/5": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    919.4,
+    1003.9
+   ],
+   "tip": [
+    1002.2,
+    993.1
+   ]
+  },
+  "n_attack/attack/0": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    46.7,
+    467.5
+   ],
+   "tip": [
+    101.4,
+    403.1
+   ]
+  },
+  "n_attack/attack/1": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    569.1,
+    53.8
+   ],
+   "tip": [
+    569.1,
+    200.2
+   ]
+  },
+  "n_attack/attack/2": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    895.8,
+    342.6
+   ],
+   "tip": [
+    985.6,
+    420.7
+   ]
+  },
+  "n_attack/attack/3": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1147.9,
+    389.5
+   ],
+   "tip": [
+    1217.2,
+    463.6
+   ]
+  },
+  "n_attack/attack/4": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1431.2,
+    397.3
+   ],
+   "tip": [
+    1502.5,
+    468.5
+   ]
+  },
+  "n_attack/attack/5": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1579.4,
+    404.1
+   ],
+   "tip": [
+    1524.8,
+    469.5
+   ]
+  },
+  "n_hurt/hurt/0": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    99.4,
+    403.1
+   ],
+   "tip": [
+    48.7,
+    468.5
+   ]
+  },
+  "n_hurt/hurt/1": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    378.8,
+    398.2
+   ],
+   "tip": [
+    325.2,
+    467.5
+   ]
+  },
+  "n_hurt/hurt/3": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1156.5,
+    384.6
+   ],
+   "tip": [
+    1200.4,
+    183.6
+   ]
+  },
+  "n_run/run/0": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    87.4,
+    441.6
+   ],
+   "tip": [
+    11.4,
+    572.6
+   ]
+  },
+  "n_run/run/1": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    457.4,
+    425.6
+   ],
+   "tip": [
+    377.4,
+    552.6
+   ]
+  },
+  "n_run/run/2": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    820.4,
+    427.6
+   ],
+   "tip": [
+    741.4,
+    548.6
+   ]
+  },
+  "n_run/run/3": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1185.4,
+    413.6
+   ],
+   "tip": [
+    1099.4,
+    527.6
+   ]
+  },
+  "n_run/run/4": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1539.4,
+    439.6
+   ],
+   "tip": [
+    1463.4,
+    567.6
+   ]
+  },
+  "n_run/run/5": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1903.4,
+    434.6
+   ],
+   "tip": [
+    1828.4,
+    562.6
+   ]
+  },
+  "s_attack/attack/0": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    264.4,
+    482.6
+   ],
+   "tip": [
+    319.4,
+    566.6
+   ]
+  },
+  "s_attack/attack/1": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    524.4,
+    446.6
+   ],
+   "tip": [
+    704.4,
+    442.6
+   ]
+  },
+  "s_attack/attack/2": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    982.4,
+    434.6
+   ],
+   "tip": [
+    1067.4,
+    436.6
+   ]
+  },
+  "s_attack/attack/3": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1311.9,
+    425.6
+   ],
+   "tip": [
+    1438.9,
+    423.6
+   ]
+  },
+  "s_attack/attack/4": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1705.9,
+    453.6
+   ],
+   "tip": [
+    1770.9,
+    540.6
+   ]
+  },
+  "s_attack/attack/5": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    2069.4,
+    481.6
+   ],
+   "tip": [
+    2119.4,
+    568.6
+   ]
+  },
+  "s_cast/cast/0": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    243.4,
+    466.6
+   ],
+   "tip": [
+    345.4,
+    557.6
+   ]
+  },
+  "s_cast/cast/1": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    607.4,
+    465.6
+   ],
+   "tip": [
+    706.4,
+    557.6
+   ]
+  },
+  "s_cast/cast/2": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    971.4,
+    462.6
+   ],
+   "tip": [
+    1070.4,
+    558.6
+   ]
+  },
+  "s_cast/cast/3": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1333.4,
+    465.6
+   ],
+   "tip": [
+    1432.4,
+    560.6
+   ]
+  },
+  "s_cast/cast/4": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1692.4,
+    465.6
+   ],
+   "tip": [
+    1791.4,
+    558.6
+   ]
+  },
+  "s_cast/cast/5": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    2056.4,
+    465.6
+   ],
+   "tip": [
+    2154.4,
+    559.6
+   ]
+  },
+  "s_dead/dead/0": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    240.4,
+    465.6
+   ],
+   "tip": [
+    336.4,
+    553.6
+   ]
+  },
+  "s_dead/dead/1": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    556.4,
+    485.6
+   ],
+   "tip": [
+    648.4,
+    565.6
+   ]
+  },
+  "s_dead/dead/2": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    887.4,
+    523.6
+   ],
+   "tip": [
+    961.4,
+    568.6
+   ]
+  },
+  "s_dead/dead/3": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1217.4,
+    553.6
+   ],
+   "tip": [
+    1331.4,
+    560.6
+   ]
+  },
+  "s_dead/dead/4": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1615.9,
+    552.6
+   ],
+   "tip": [
+    1732.9,
+    560.6
+   ]
+  },
+  "s_dead/dead/5": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    2024.4,
+    554.6
+   ],
+   "tip": [
+    2141.4,
+    561.6
+   ]
+  },
+  "s_hurt/hurt/0": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    276.4,
+    497.6
+   ],
+   "tip": [
+    379.4,
+    591.6
+   ]
+  },
+  "s_hurt/hurt/1": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    633.4,
+    481.6
+   ],
+   "tip": [
+    723.4,
+    587.6
+   ]
+  },
+  "s_hurt/hurt/3": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1314.4,
+    492.6
+   ],
+   "tip": [
+    1408.4,
+    591.6
+   ]
+  },
+  "s_idle/idle/0": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    256.4,
+    489.6
+   ],
+   "tip": [
+    356.4,
+    582.6
+   ]
+  },
+  "s_idle/idle/1": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    623.9,
+    483.6
+   ],
+   "tip": [
+    718.9,
+    585.6
+   ]
+  },
+  "s_idle/idle/2": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    985.4,
+    477.6
+   ],
+   "tip": [
+    1080.4,
+    583.6
+   ]
+  },
+  "s_idle/idle/3": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1345.9,
+    492.6
+   ],
+   "tip": [
+    1441.9,
+    581.6
+   ]
+  },
+  "s_idle/idle/4": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1702.9,
+    489.6
+   ],
+   "tip": [
+    1803.9,
+    581.6
+   ]
+  },
+  "s_idle/idle/5": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    2065.4,
+    486.6
+   ],
+   "tip": [
+    2165.4,
+    583.6
+   ]
+  },
+  "s_run/run/0": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    252.4,
+    447.6
+   ],
+   "tip": [
+    351.4,
+    527.6
+   ]
+  },
+  "s_run/run/1": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    614.4,
+    450.6
+   ],
+   "tip": [
+    714.4,
+    529.6
+   ]
+  },
+  "s_run/run/2": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    976.4,
+    449.6
+   ],
+   "tip": [
+    1075.4,
+    529.6
+   ]
+  },
+  "s_run/run/3": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1339.4,
+    448.6
+   ],
+   "tip": [
+    1437.4,
+    526.6
+   ]
+  },
+  "s_run/run/4": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1700.4,
+    446.6
+   ],
+   "tip": [
+    1802.4,
+    530.6
+   ]
+  },
+  "s_run/run/5": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    2065.4,
+    449.6
+   ],
+   "tip": [
+    2162.4,
+    529.6
+   ]
+  },
+  "se_attack/attack/0": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    295.9,
+    477.6
+   ],
+   "tip": [
+    368.9,
+    568.6
+   ]
+  },
+  "se_attack/attack/1": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    648.9,
+    449.6
+   ],
+   "tip": [
+    702.9,
+    498.6
+   ]
+  },
+  "se_attack/attack/2": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    940.4,
+    464.6
+   ],
+   "tip": [
+    894.4,
+    477.6
+   ]
+  },
+  "se_attack/attack/3": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1373.9,
+    421.6
+   ],
+   "tip": [
+    1466.9,
+    443.6
+   ]
+  },
+  "se_attack/attack/4": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1712.9,
+    461.6
+   ],
+   "tip": [
+    1789.9,
+    518.6
+   ]
+  },
+  "se_attack/attack/5": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    2062.4,
+    475.6
+   ],
+   "tip": [
+    2133.4,
+    566.6
+   ]
+  },
+  "se_cast/cast/0": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    333.9,
+    437.6
+   ],
+   "tip": [
+    397.9,
+    506.6
+   ]
+  },
+  "se_cast/cast/1": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    645.4,
+    437.6
+   ],
+   "tip": [
+    706.4,
+    508.6
+   ]
+  },
+  "se_cast/cast/2": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    970.4,
+    433.6
+   ],
+   "tip": [
+    1035.4,
+    505.6
+   ]
+  },
+  "se_cast/cast/3": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1289.9,
+    437.6
+   ],
+   "tip": [
+    1355.9,
+    511.6
+   ]
+  },
+  "se_cast/cast/4": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1608.9,
+    433.6
+   ],
+   "tip": [
+    1682.9,
+    509.6
+   ]
+  },
+  "se_cast/cast/5": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1939.4,
+    435.6
+   ],
+   "tip": [
+    2013.4,
+    515.6
+   ]
+  },
+  "se_hurt/hurt/0": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    319.4,
+    461.6
+   ],
+   "tip": [
+    401.4,
+    558.6
+   ]
+  },
+  "se_hurt/hurt/1": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    676.9,
+    460.6
+   ],
+   "tip": [
+    757.9,
+    557.6
+   ]
+  },
+  "se_hurt/hurt/3": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1361.9,
+    463.6
+   ],
+   "tip": [
+    1445.9,
+    558.6
+   ]
+  },
+  "se_idle/idle/0": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    286.4,
+    489.6
+   ],
+   "tip": [
+    359.4,
+    577.6
+   ]
+  },
+  "se_idle/idle/1": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    648.4,
+    487.6
+   ],
+   "tip": [
+    719.4,
+    575.6
+   ]
+  },
+  "se_idle/idle/2": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1013.4,
+    481.6
+   ],
+   "tip": [
+    1085.4,
+    577.6
+   ]
+  },
+  "se_idle/idle/3": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1371.4,
+    489.6
+   ],
+   "tip": [
+    1445.4,
+    576.6
+   ]
+  },
+  "se_idle/idle/4": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1734.4,
+    491.6
+   ],
+   "tip": [
+    1809.4,
+    578.6
+   ]
+  },
+  "se_idle/idle/5": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    2099.4,
+    489.6
+   ],
+   "tip": [
+    2170.4,
+    580.6
+   ]
+  },
+  "se_run/run/0": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    304.9,
+    469.6
+   ],
+   "tip": [
+    379.9,
+    539.6
+   ]
+  },
+  "se_run/run/1": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    656.4,
+    469.6
+   ],
+   "tip": [
+    733.4,
+    538.6
+   ]
+  },
+  "se_run/run/2": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1004.4,
+    465.6
+   ],
+   "tip": [
+    1085.4,
+    538.6
+   ]
+  },
+  "se_run/run/3": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1355.9,
+    465.6
+   ],
+   "tip": [
+    1431.9,
+    539.6
+   ]
+  },
+  "se_run/run/4": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1704.9,
+    470.6
+   ],
+   "tip": [
+    1785.9,
+    541.6
+   ]
+  },
+  "se_run/run/5": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    2060.9,
+    467.6
+   ],
+   "tip": [
+    2143.9,
+    540.6
+   ]
+  },
+  "side/idle/0": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    62,
+    113.7
+   ],
+   "tip": [
+    43.3,
+    135
+   ]
+  },
+  "side/idle/1": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    205.8,
+    116.1
+   ],
+   "tip": [
+    242.6,
+    141.3
+   ]
+  },
+  "side/idle/2": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    334.8,
+    116.8
+   ],
+   "tip": [
+    371.2,
+    140.6
+   ]
+  },
+  "side/idle/3": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    465.3,
+    116.6
+   ],
+   "tip": [
+    500.9,
+    140.6
+   ]
+  },
+  "side/idle/4": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    594.1,
+    116.6
+   ],
+   "tip": [
+    630.9,
+    140.3
+   ]
+  },
+  "side/idle/5": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    594.8,
+    117.1
+   ],
+   "tip": [
+    630.7,
+    140.3
+   ]
+  },
+  "side/run/0": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    64.4,
+    247.2
+   ],
+   "tip": [
+    36.4,
+    259
+   ]
+  },
+  "side/run/1": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    191.9,
+    243.6
+   ],
+   "tip": [
+    161.7,
+    257.2
+   ]
+  },
+  "side/run/2": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    320.6,
+    245.6
+   ],
+   "tip": [
+    289.9,
+    259
+   ]
+  },
+  "side/run/3": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    449.7,
+    246.7
+   ],
+   "tip": [
+    420.1,
+    257
+   ]
+  },
+  "side/run/4": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    579.3,
+    246.5
+   ],
+   "tip": [
+    547.2,
+    257.6
+   ]
+  },
+  "side/run/5": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    733.3,
+    254.5
+   ],
+   "tip": [
+    757.3,
+    263.4
+   ]
+  },
+  "side_attack/attack/0": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    207.4,
+    425.6
+   ],
+   "tip": [
+    292.4,
+    329.6
+   ]
+  },
+  "side_attack/attack/1": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    446.4,
+    445.6
+   ],
+   "tip": [
+    333.4,
+    499.6
+   ]
+  },
+  "side_attack/attack/2": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    943.4,
+    400.6
+   ],
+   "tip": [
+    1027.4,
+    312.6
+   ]
+  },
+  "side_attack/attack/3": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1318.4,
+    394.6
+   ],
+   "tip": [
+    1426.4,
+    389.6
+   ]
+  },
+  "side_attack/attack/4": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1693.4,
+    422.6
+   ],
+   "tip": [
+    1781.4,
+    471.6
+   ]
+  },
+  "side_attack/attack/5": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    2044.4,
+    427.6
+   ],
+   "tip": [
+    2132.4,
+    327.6
+   ]
+  },
+  "side_cast/cast/0": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    223.4,
+    487.6
+   ],
+   "tip": [
+    327.4,
+    361.6
+   ]
+  },
+  "side_cast/cast/1": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    584.4,
+    489.6
+   ],
+   "tip": [
+    691.4,
+    361.6
+   ]
+  },
+  "side_cast/cast/2": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    946.4,
+    488.6
+   ],
+   "tip": [
+    1050.4,
+    390.6
+   ]
+  },
+  "side_cast/cast/3": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1310.4,
+    487.6
+   ],
+   "tip": [
+    1416.4,
+    389.6
+   ]
+  },
+  "side_cast/cast/4": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1674.4,
+    484.6
+   ],
+   "tip": [
+    1776.4,
+    389.6
+   ]
+  },
+  "side_cast/cast/5": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    2033.4,
+    484.6
+   ],
+   "tip": [
+    2136.4,
+    391.6
+   ]
+  },
+  "side_dead/dead/0": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    255.4,
+    425.6
+   ],
+   "tip": [
+    315.4,
+    481.6
+   ]
+  },
+  "side_dead/dead/1": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    508.9,
+    497.6
+   ],
+   "tip": [
+    547.9,
+    529.6
+   ]
+  },
+  "side_dead/dead/5": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1929.4,
+    569.6
+   ],
+   "tip": [
+    2138.4,
+    565.6
+   ]
+  },
+  "side_hurt/hurt/0": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    184.4,
+    473.6
+   ],
+   "tip": [
+    306.4,
+    536.6
+   ]
+  },
+  "side_hurt/hurt/1": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    573.9,
+    453.6
+   ],
+   "tip": [
+    704.9,
+    509.6
+   ]
+  },
+  "side_hurt/hurt/3": {
+   "at": "2026-11-12",
+   "behind": false,
+   "by": "tay",
+   "grip": [
+    1304.9,
+    440.6
+   ],
+   "tip": [
+    1444.9,
+    505.6
+   ]
+  }
+ },
+ "note": "Đánh dấu vũ khí từng khung (toạ độ ảnh nguồn). Tạo bằng tools/mark_weapon.py",
+ "version": 1
+}

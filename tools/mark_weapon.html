@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Đánh dấu vũ khí</title>
+<style>
+  :root { --bg:#1b1d22; --panel:#24272e; --line:#3a3f49; --text:#e6e8ec; --dim:#9aa1ad;
+          --ok:#4cc38a; --none:#7d8590; --auto:#e0a03a; --bad:#e5534b; --grip:#3ddc84; --tip:#ff4fd8; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:14px/1.45 system-ui, "Segoe UI", sans-serif; }
+  .wrap { display:flex; gap:16px; padding:14px 16px; height:100vh; }
+  .main { flex:1; display:flex; flex-direction:column; min-width:0; }
+  .bar { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:10px; }
+  .bar h1 { font-size:16px; margin:0 8px 0 0; }
+  .key { font:600 15px ui-monospace, Consolas, monospace; }
+  .tag { padding:2px 8px; border-radius:10px; font-size:12px; background:var(--line); }
+  .tag.ok { background:var(--ok); color:#06210f } .tag.none { background:var(--none) }
+  .tag.auto { background:var(--auto); color:#2a1800 } .tag.bad { background:var(--bad) }
+  .stage { flex:1; min-height:0; background:#fff; border-radius:8px; position:relative; overflow:hidden;
+           display:flex; align-items:center; justify-content:center; cursor:crosshair; }
+  canvas { image-rendering:pixelated; }
+  .help { color:var(--dim); margin-top:8px; font-size:13px; }
+  .help b { color:var(--text); }
+  kbd { background:var(--line); border-radius:4px; padding:0 5px; font:12px ui-monospace, Consolas, monospace; color:var(--text); }
+  .side { width:340px; display:flex; flex-direction:column; min-height:0; }
+  .side label { color:var(--dim); font-size:13px; }
+  .prog { margin:6px 0 10px; }
+  .meter { height:8px; background:var(--line); border-radius:4px; overflow:hidden; }
+  .meter i { display:block; height:100%; background:var(--ok); }
+  .grid { flex:1; min-height:0; overflow:auto; display:grid; grid-template-columns:repeat(5, 1fr); grid-auto-rows:72px; gap:6px; align-content:start; padding-right:4px; }
+  .th { position:relative; background:#fff; border-radius:5px; border:3px solid var(--line); cursor:pointer; overflow:hidden; }
+  .th img { width:100%; height:100%; object-fit:contain; }
+  .th.ok { border-color:var(--ok) } .th.none { border-color:var(--none) } .th.auto { border-color:var(--auto) } .th.bad { border-color:var(--bad) }
+  .th.cur { outline:3px solid #fff; outline-offset:1px; }
+  .th span { position:absolute; left:2px; bottom:1px; font:10px ui-monospace, Consolas, monospace; color:#333; background:#fffc; padding:0 2px; }
+  .legend { display:flex; gap:10px; flex-wrap:wrap; font-size:12px; color:var(--dim); margin-bottom:8px; }
+  .legend i { display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:4px; vertical-align:-1px; }
+  .err { color:var(--bad); }
+  @media (max-width: 900px) { .wrap { flex-direction:column; height:auto } .side { width:100% } .stage { height:60vh } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="main">
+    <div class="bar">
+      <h1>Đánh dấu vũ khí</h1>
+      <span class="key" id="key">…</span>
+      <span class="tag" id="state">…</span>
+      <span class="tag" id="behind" hidden>sau lưng</span>
+      <span id="msg" class="err"></span>
+    </div>
+    <div class="stage" id="stage"><canvas id="cv"></canvas></div>
+    <div class="help">
+      <b>Bấm 2 điểm:</b> <span style="color:var(--grip)">●</span> <b>chuôi</b> (giữa nắm tay cầm kiếm) rồi
+      <span style="color:var(--tip)">●</span> <b>mũi kiếm</b>, tự lưu và sang khung sau.
+      Kiếm nằm đất (ngã): chuôi = đầu chuôi kiếm.<br>
+      <kbd>Enter</kbd> nhận kết quả dò tự động (đường vàng) &nbsp;
+      <kbd>N</kbd> không có kiếm &nbsp;
+      <kbd>B</kbd> kiếm sau lưng người (bật/tắt) &nbsp;
+      <kbd>X</kbd> xoá đánh dấu &nbsp;
+      <kbd>←</kbd><kbd>→</kbd> khung trước/sau &nbsp;
+      <kbd>Esc</kbd> bấm lại
+    </div>
+  </div>
+  <div class="side">
+    <div class="prog"><span id="count">…</span><div class="meter"><i id="meter" style="width:0"></i></div></div>
+    <div class="legend">
+      <span><i style="background:var(--ok)"></i>đã đánh dấu</span>
+      <span><i style="background:var(--none)"></i>không kiếm</span>
+      <span><i style="background:var(--auto)"></i>chưa, có gợi ý</span>
+      <span><i style="background:var(--bad)"></i>chưa, không gợi ý</span>
+    </div>
+    <label><input type="checkbox" id="onlyTodo"> chỉ hiện khung chưa đánh dấu</label>
+    <div class="grid" id="grid"></div>
+  </div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+let items = [], marks = {}, cur = 0, clicks = [], img = null, view = { s: 1, x: 0, y: 0 };
+const imgs = {};
+
+function status(it) {
+  const m = marks[it.key];
+  if (m) return m.none ? 'none' : 'ok';
+  return it.auto ? 'auto' : 'bad';
+}
+const STATE_TXT = { ok: 'đã đánh dấu', none: 'không có kiếm', auto: 'chưa đánh dấu (có gợi ý)', bad: 'chưa đánh dấu' };
+
+async function load() {
+  const r = await fetch('/api/items'); const j = await r.json();
+  items = j.items; marks = j.marks || {};
+  const first = items.findIndex(it => !marks[it.key]);
+  cur = first < 0 ? 0 : first;
+  buildGrid(); show();
+}
+
+function buildGrid() {
+  const g = $('grid'); g.innerHTML = '';
+  const only = $('onlyTodo').checked;
+  items.forEach((it, i) => {
+    const st = status(it);
+    if (only && (st === 'ok' || st === 'none') && i !== cur) return;
+    const d = document.createElement('div');
+    d.className = 'th ' + st + (i === cur ? ' cur' : '');
+    d.innerHTML = `<img loading="lazy" src="/cells/${encodeURIComponent(it.img)}"><span>${it.key.replace(/\//g, ' ')}</span>`;
+    d.onclick = () => { cur = i; clicks = []; show(); buildGrid(); };
+    g.appendChild(d);
+  });
+  const done = items.filter(it => marks[it.key]).length;
+  $('count').textContent = `${done} / ${items.length} khung đã xong`;
+  $('meter').style.width = (100 * done / Math.max(1, items.length)) + '%';
+  const c = g.querySelector('.cur'); if (c) c.scrollIntoView({ block: 'nearest' });
+}
+
+function getImg(it) {
+  if (!imgs[it.img]) { const im = new Image(); im.src = '/cells/' + encodeURIComponent(it.img); imgs[it.img] = im; }
+  return imgs[it.img];
+}
+
+function show() {
+  const it = items[cur]; if (!it) return;
+  $('key').textContent = it.key;
+  const st = status(it);
+  $('state').className = 'tag ' + st; $('state').textContent = STATE_TXT[st];
+  $('behind').hidden = !(marks[it.key] && marks[it.key].behind);
+  img = getImg(it);
+  if (img.complete) draw(); else img.onload = draw;
+  // nạp trước khung sau
+  if (items[cur + 1]) getImg(items[cur + 1]);
+}
+
+function draw() {
+  const it = items[cur], st = $('stage'), cv = $('cv');
+  const W = st.clientWidth, H = st.clientHeight;
+  const s = Math.max(1, Math.min(W / it.w, H / it.h) * 0.96);
+  cv.width = Math.round(it.w * s); cv.height = Math.round(it.h * s);
+  view = { s };
+  const c = cv.getContext('2d');
+  c.imageSmoothingEnabled = false;
+  c.drawImage(img, 0, 0, cv.width, cv.height);
+  const L = p => [(p[0] - it.ox) * s, (p[1] - it.oy) * s];      // toạ độ nguồn -> canvas
+  const line = (a, b, col, dash, w) => {
+    c.save(); c.strokeStyle = col; c.lineWidth = w; c.setLineDash(dash);
+    c.beginPath(); c.moveTo(...L(a)); c.lineTo(...L(b)); c.stroke(); c.restore();
+  };
+  const dot = (p, col) => { const [x, y] = L(p); c.fillStyle = col; c.strokeStyle = '#000'; c.lineWidth = 2;
+    c.beginPath(); c.arc(x, y, 7, 0, 7); c.fill(); c.stroke(); };
+  const m = marks[it.key];
+  if (it.auto && !(m && !m.none)) line(it.auto.grip, it.auto.tip, '#e0a03a', [8, 6], 3);
+  if (m && !m.none) { line(m.grip, m.tip, m.behind ? '#5b8cff' : '#ff3b3b', [], 3); dot(m.grip, '#3ddc84'); dot(m.tip, '#ff4fd8'); }
+  if (clicks.length) dot(clicks[0], '#3ddc84');
+}
+
+async function save(mark) {
+  const it = items[cur];
+  if (mark) mark.at = new Date().toISOString().slice(0, 10);
+  try {
+    const r = await fetch('/api/mark', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: it.key, mark }) });
+    if (!r.ok) throw new Error(r.status);
+    $('msg').textContent = '';
+  } catch (e) { $('msg').textContent = 'Không lưu được: ' + e.message; return false; }
+  if (mark) marks[it.key] = mark; else delete marks[it.key];
+  return true;
+}
+
+function next() {
+  const only = $('onlyTodo').checked;
+  let i = cur + 1;
+  if (only) while (i < items.length && marks[items[i].key]) i++;
+  if (i < items.length) cur = i;
+  clicks = []; show(); buildGrid();
+}
+
+$('stage').addEventListener('mousedown', async e => {
+  const it = items[cur], cv = $('cv'), r = cv.getBoundingClientRect();
+  const x = (e.clientX - r.left) / view.s + it.ox, y = (e.clientY - r.top) / view.s + it.oy;
+  if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) return;
+  clicks.push([Math.round(x * 10) / 10, Math.round(y * 10) / 10]);
+  if (clicks.length === 2) {
+    const old = marks[it.key];
+    const ok = await save({ grip: clicks[0], tip: clicks[1], behind: !!(old && old.behind), by: 'tay' });
+    clicks = [];
+    draw();
+    if (ok) setTimeout(next, 220);
+  } else draw();
+});
+
+document.addEventListener('keydown', async e => {
+  const it = items[cur]; if (!it) return;
+  const k = e.key.toLowerCase();
+  if (k === 'arrowright') { e.preventDefault(); if (cur < items.length - 1) { cur++; clicks = []; show(); buildGrid(); } }
+  else if (k === 'arrowleft') { e.preventDefault(); if (cur > 0) { cur--; clicks = []; show(); buildGrid(); } }
+  else if (k === 'escape') { clicks = []; draw(); }
+  else if (k === 'enter') {
+    e.preventDefault();
+    if (marks[it.key]) { next(); return; }
+    if (!it.auto) { $('msg').textContent = 'Khung này không có gợi ý: bấm 2 điểm hoặc N.'; return; }
+    if (await save({ grip: it.auto.grip, tip: it.auto.tip, behind: false, by: 'tự động' })) next();
+  }
+  else if (k === 'n') { if (await save({ none: true })) next(); }
+  else if (k === 'x') { await save(null); show(); buildGrid(); }
+  else if (k === 'b') {
+    const m = marks[it.key];
+    if (!m || m.none) { $('msg').textContent = 'Đánh dấu kiếm trước rồi mới bật "sau lưng".'; return; }
+    await save({ ...m, behind: !m.behind }); show(); buildGrid();
+  }
+});
+$('onlyTodo').onchange = buildGrid;
+window.addEventListener('resize', () => img && img.complete && draw());
+load().catch(e => { $('msg').textContent = 'Lỗi tải dữ liệu: ' + e.message; });
+</script>
+</body>
+</html>

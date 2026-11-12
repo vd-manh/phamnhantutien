@@ -1,0 +1,12 @@
+{
+ "note": "Ảnh vũ khí nằm ngang, mũi sang phải. grip = điểm bàn tay nắm (giữa chuôi), tip = mũi (toạ độ ảnh). Lớp vũ khí của nhân vật: src/weapon_layer.js",
+ "weapons": {
+  "thanh_phong": {
+   "name": "Thanh Phong Kiếm",
+   "img": "thanh_phong.png",
+   "grip": [12, 18],
+   "tip": [174, 17],
+   "source": "tách từ khung ngã nhìn ngang (sword/kiem_side_dead.png.png), bỏ tua"
+  }
+ }
+}

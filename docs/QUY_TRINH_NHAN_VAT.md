@@ -26,6 +26,8 @@ Mục **9. Việc còn dang dở** liệt kê những phần chưa xong để ho
 5. **Tải bằng nút tải về**, không chụp màn hình. Ảnh chụp bị nút che và mờ hơn.
 6. Hướng **nhìn ngang** rất khó: mở đầu câu lệnh bằng `2D side-scrolling platformer game sprite strip, pure side view facing RIGHT, only one eye visible`. Nếu chưa có ảnh mẫu nhìn ngang thì làm 2 bước: tạo **một hình đứng nhìn ngang** trước, rồi dùng nó làm mẫu.
 7. Hướng **sau lưng**: thêm `The face is never visible.`
+8. **Tay cầm vũ khí:** luôn là **tay gần người xem** (tay trái thật). Trên ảnh: chéo trước và thẳng → bên **phải** ảnh; ngang → cánh tay **gần**; sau lưng → bên **trái** ảnh. Tay kia **không cầm gì**. Mỗi câu lệnh phải có câu `SWORD RULE` nói rõ điều này, nếu không AI hay vẽ thêm tua/chuôi ở tay kia, cho kiếm đổi tay, hoặc bỏ mất kiếm khi chạy. Lý do: vũ khí là **lớp tách rời** (xem mục 7), tay kia cầm gì sẽ lộ ra khi đổi vũ khí.
+9. Sheet 6×6 cũ hay vẽ **sai góc** ở các hàng dưới (hàng "thẳng" thực ra là chéo trước, hàng "sau lưng" thực ra là chéo sau). Luôn rà lại góc từng hàng.
 
 **Bước đầu cho nhân vật mới:**
 
@@ -96,7 +98,7 @@ Ba hướng bên trái lấy bằng lật ngang. Hướng nào thiếu ảnh th�
   - **tự chỉnh cỡ** để mọi ảnh cùng chiều cao với ảnh "front";
   - thu nhỏ 0,45 và đặt vào khung 128×104, chân ở (64, 96).
 - **Gắn vào game:** thêm `TT.CUSTOM_CASTERS[<tông môn>] = '<key>'` trong `src/casters.js`. Tông môn đó sẽ dùng bộ này ở mọi cảnh giới và cả hai giới tính.
-- **Bài học:** ảnh AI thỉnh thoảng vẽ **sai góc trong một vài hàng**. Ví dụ hàng chém và thi pháp nhìn ngang bị vẽ quay lưng. Khi đó, khai báo `dirset` riêng (như `act`) để mượn hàng của hướng khác.
+- **Bài học:** ảnh AI thỉnh thoảng vẽ **sai góc trong một vài hàng**. Ví dụ hàng chém và thi pháp nhìn ngang bị vẽ quay lưng. Khi đó, khai báo `dirset` riêng để mượn hàng của hướng khác, hoặc vẽ lại hàng đó thành ảnh 1 hàng riêng (như `kiem_side_attack.png` với dirset `atk`).
 
 ## 5. Chiêu thức
 
@@ -179,14 +181,21 @@ Ba hướng bên trái lấy bằng lật ngang. Hướng nào thiếu ảnh th�
 
 | Ưu tiên | File | Nội dung |
 |---|---|---|
-| 1 | `kiem_side_attack.png`, `kiem_side_cast.png` | chém và thi pháp **nhìn ngang** (hiện mượn ảnh chéo trước) |
-| 2 | `kiem_back_dead.png` | ngã nhìn sau lưng (hiện mượn ảnh nhìn trước) |
-| 3 | `kiem_{se,s,e,n}_atk2.png`, `kiem_{se,s,e,n}_atk3.png` | đòn 2 và 3 của combo (hiện 3 đòn dùng chung một động tác) |
+| ~~1~~ | ~~`kiem_side_attack.png`, `kiem_side_cast.png`~~ | **xong** (13/11/2026): dirset `atk`, `cst` trong `ai_sheet.py` |
+| ~~2~~ | ~~`kiem_back_dead.png`~~ | **xong** (13/11/2026): nguồn `back_dead`, dùng cho hướng N và NE. Ảnh mẫu sau lưng: `sword/kiem_back_ref.png` |
+| 3 | **14 hàng vẽ lại sau rà soát 13/11/2026** + đòn 2, 3 | danh sách và câu lệnh đầy đủ: **`docs/CAU_LENH_KIEM_TU.md`**. Đã xong và đã đóng gói: `kiem_back_cast`, `kiem_se_{idle,run,attack,cast,hurt}`, `kiem_s_{idle,run,attack,cast,hurt,dead}`, `kiem_e_cast`. `kiem_n_run` đạt. **Dùng tạm, sửa sau:** `kiem_n_attack` (khung 2–5 kiếm sang tay phải), `kiem_n_hurt` (khung 3–5 hai kiếm / đổi tay). Mẹo khi làm lại hướng sau lưng: gắn ảnh 1 hàng `kiem_back_cast.png` làm mẫu để Gemini giữ bố cục 1 hàng. Còn: đòn 2, 3 |
 | 4 | `kiem_fly_{se,s,e,ne,n}.png` | người bay **không kiếm** |
 | 4 | `sword_thanh_phong.png` | kiếm bay riêng, 5 hướng |
 
 **Hệ thống:**
 
+- [ ] **Lớp vũ khí tách rời** (đang làm):
+  - [x] Đánh dấu chuôi/mũi: **xong 138/141 khung** (`python tools/mark_weapon.py kiem_ai 8090`, lưu `sword/weapon_marks.json`). 3 khung `side_dead/dead/2–4` không có kiếm, cố ý bỏ trống.
+  - [x] Ảnh kiếm mặc định: `assets/weapons/thanh_phong.png` + `weapons.json` (tách từ khung ngã nhìn ngang; grip/tip theo toạ độ ảnh, mũi sang phải).
+  - [x] Code đóng gói trong `tools/ai_sheet.py` (khoá `weapon` của bộ `kiem_ai`): xoá kiếm khỏi thân (`weapon_detect.erase_weapon`), xuất `<anim>_<hướng>_hand.png`, ghi vào `rig.json` mỗi khung `[gx, gy, góc, dài, sau_lưng]` và `rig.weapon.nominal`; ảnh xem trước vẽ thử kiếm.
+  - [ ] **Chưa chạy được bản đóng gói có lớp kiếm**: máy hết bộ nhớ (RAM trống ~400 MB, ổ C ~240 MB). Tắt bớt chương trình rồi chạy `python -I tools/ai_sheet.py kiem_ai --preview drafts/weapon_layer/out`, kiểm tra ảnh xem trước (kiếm khớp tay mọi hướng). `assets/casters/chibi/kiem_ai/` hiện vẫn là bản không tách kiếm, game chạy bình thường.
+  - [ ] Viết `src/weapon_layer.js`: vẽ thân → kiếm (ảnh từ `weapons.json`, đặt grip tại (gx, gy), xoay `góc`, co dọc lưỡi theo `dài`, ngang theo `nominal`; `sau_lưng` = 1 thì vẽ trước thân) → bàn tay; nạp `_hand` cùng sheet thân.
+  - Cách cắt ô mới cho ảnh 1 hàng (`split_parts`): mảng hình dính người nào thuộc khung đó, vệt chém rời thuộc người gần nhất, nên kiếm/vệt chém không còn bị cắt đôi sang khung bên.
 - [ ] Ngự kiếm tách người và kiếm, kiếm bay theo vũ khí trang bị.
 - [ ] Hệ thống trang bị 6 ô, túi đồ (E), phẩm cấp, rơi đồ.
 - [ ] Thử nghiệm thay vũ khí trên tay bằng code (dò lưỡi kiếm, vẽ đè).
