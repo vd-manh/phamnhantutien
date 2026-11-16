@@ -69,7 +69,7 @@ TT.DATA = {
       caster: 'assets/casters/nho_dao_topdown', aura: [0xffffff, 0xc8ccd8, 0x8890a0],
       desc: 'Đạo pháp tự nhiên, áo trắng mực đen. Một tay đại bút, một tay thẻ tre, lấy chữ hóa pháp. (5 ô chiêu tạm mượn của Pháp Tu.)',
       hpMul: 1.0, mpMul: 1.35, atkMul: 1.05, basic: { name: 'Bút Pháp', glyph: '筆' },
-      skills: ['loi_phap', 'bang_vu', 'loi_than', 'tinh_long', 'hoa_lien']
+      skills: ['loi_phap', 'bang_vu', 'loi_than', 'tinh_long', 'giang_son']
     }
   },
 
@@ -91,6 +91,8 @@ TT.DATA = {
                   desc: 'Định trụ thời gian của một yêu thú: đồng hồ hiện trên đầu, mục tiêu bất động; chớp di quanh nó chém liên tục tám nhát, mỗi nhát để lại tàn ảnh xanh lục, nhát cuối kiếm quang lớn rồi đồng hồ quay ngược.' },
     dai_canh:   { name: 'Đại Canh Kiếm Trận', glyph: '庚', color: '#5dffa0', cost: 55, cd: 20,  dmg: 1.5,
                   desc: 'Tuyệt kỹ: tụ lực 4 giây, pháp trận xanh lục hiện dưới chân, mười hai phi kiếm quấn lôi điện bay lên xếp thành vòng sau lưng rồi xoắn thành lốc xoáy lao tới mục tiêu, kích nổ lôi trận.' },
+    giang_son:  { name: 'Giang Sơn Lưỡng Nghi Đồ', glyph: '龍', color: '#e8e4da', cost: 55, cd: 20, dmg: 1.5,
+                  desc: 'Tuyệt kỹ: mở trận thái cực lưỡng nghi dưới chân, viết thư pháp chữ Long giữa không trung, ném chữ vào địch; núi thuỷ mặc giáng xuống trấn áp mục tiêu, hai con rồng mực từ mây lao tới xé tan.' },
     phi_long:   { name: 'Phi Long Tại Thiên', glyph: '龍', color: '#ffd34d', cost: 50, cd: 18,  dmg: 5.5,
                   desc: 'Tuyệt kỹ: hóa thân kim quang, phóng kim long bay vút lên trời rồi lao thẳng xuống mục tiêu, để lại hố chưởng ấn.',
                   fx: 'phi_long_tai_thien' },

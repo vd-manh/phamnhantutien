@@ -14,6 +14,15 @@ Mục **9. Việc còn dang dở** liệt kê những phần chưa xong để ho
   - làm hiệu ứng chiêu thức (code + beanfx + pixelfx).
 - **Không sao chép tạo hình nhân vật của game khác** (ví dụ Tu Tiên Ký), kể cả cắt khung từ video. Chỉ dùng ảnh tự tạo hoặc tài nguyên có giấy phép.
 - Một nhân vật = **dạng gốc (base form)**. Trang phục, vũ khí thay đổi sau bằng hệ thống trang bị (mục 7).
+- **Bộ động tác chung (chốt 13/11/2026):** mọi nhân vật cơ bản, kể cả các tông môn khác, có **đúng bộ động tác của Kiếm Tu** (mục 3: cùng tên động tác, số khung, khung chạm, 8 hướng). Giữa các nhân vật chỉ khác:
+  - **ngoại hình** (thân, y phục, vật cầm tay);
+  - **vật cưỡi khi ngự kiếm/phi hành** (Kiếm Tu cưỡi kiếm; tông môn khác cưỡi vật riêng).
+
+  Hệ quả khi làm nhân vật mới:
+  - câu lệnh tạo ảnh giữ nguyên phần mô tả động tác của Kiếm Tu (`docs/CAU_LENH_KIEM_TU.md`), chỉ thay phần ngoại hình;
+  - `SETS` trong `ai_sheet.py` dùng chung khối `anims` của `kiem_ai`, chỉ khác `sources`/`dirsets`;
+  - code game (`world.js`, chiêu thức, khung chạm) không cần nhánh riêng cho từng nhân vật;
+  - người bay vẽ **không vật cưỡi**, vật cưỡi là lớp ảnh riêng ghép dưới chân (cùng cơ chế lớp vũ khí, mục 6).
 
 ## 2. Cách tạo ảnh bằng AI (đã kiểm chứng)
 
@@ -34,6 +43,8 @@ Mục **9. Việc còn dang dở** liệt kê những phần chưa xong để ho
 1. Tạo **ảnh mẫu nhìn chéo trước** (một hình đứng, hoặc một sheet) từ mô tả tạo hình.
 2. Từ ảnh mẫu đó, tạo hình đứng cho từng hướng: thẳng, ngang, sau lưng. Mỗi hình đạt thì **lưu lại làm ảnh mẫu của hướng đó**.
 3. Sau đó tạo từng hàng động tác theo câu lệnh chung ở dưới.
+
+**Cách nhanh hơn, đã kiểm chứng với Đạo Gia (13/11/2026):** sau khi có một ảnh đạt về tạo hình (góc nào cũng được), vẽ **bảng xoay**: một hàng 5 tư thế đứng (thẳng, chéo trước, ngang, chéo sau, sau lưng), gắn đúng ảnh tạo hình đó. Rồi cắt từng tư thế làm ảnh mẫu 5 hướng. Cách này thay cho bước 1–2 và giữ tạo hình đồng nhất giữa các hướng. Ép AI xoay góc từng lần (kể cả gắn hai ảnh) thì nó hay chép nguyên tư thế nhìn thẳng. Câu lệnh mẫu: `docs/CAU_LENH_DAO_GIA.md`.
 
 **Câu lệnh chung (một hàng):**
 
@@ -147,6 +158,7 @@ Ba hướng bên trái lấy bằng lật ngang. Hướng nào thiếu ảnh th�
 - Code nằm trong `world.js`: `toggleFly`, `land`, `setLift` (nâng sprite mà giữ thân va chạm ở chân).
 - **Thiết kế đã thống nhất:** **người và kiếm tách riêng**. Người bay **không kiếm** (đủ 5 hướng), kiếm bay là ảnh riêng theo **vũ khí đang trang bị**. Code ghép kiếm dưới chân và làm hoạt ảnh kiếm bay từ tay ra, quay về tay.
 - **Hiện tại:** đang tạm dùng ảnh bay **dính kiếm** (`Gemini_…y4hs`, 4 hướng).
+- **Vật cưỡi theo nhân vật:** tư thế bay là chung cho mọi nhân vật (mục 1); chỉ vật cưỡi đổi theo tông môn hoặc trang bị. Vì vậy ảnh người bay luôn vẽ không vật cưỡi, vật cưỡi là ảnh riêng 5 hướng.
 
 ## 7. Trang bị và ngoại hình (đã thống nhất, chưa làm)
 
@@ -189,18 +201,37 @@ Ba hướng bên trái lấy bằng lật ngang. Hướng nào thiếu ảnh th�
 
 **Hệ thống:**
 
-- [ ] **Lớp vũ khí tách rời** (đang làm):
+- [x] **Lớp vũ khí tách rời** (xong phần chính 13/11/2026):
   - [x] Đánh dấu chuôi/mũi: **xong 138/141 khung** (`python tools/mark_weapon.py kiem_ai 8090`, lưu `sword/weapon_marks.json`). 3 khung `side_dead/dead/2–4` không có kiếm, cố ý bỏ trống.
   - [x] Ảnh kiếm mặc định: `assets/weapons/thanh_phong.png` + `weapons.json` (tách từ khung ngã nhìn ngang; grip/tip theo toạ độ ảnh, mũi sang phải).
   - [x] Code đóng gói trong `tools/ai_sheet.py` (khoá `weapon` của bộ `kiem_ai`): xoá kiếm khỏi thân (`weapon_detect.erase_weapon`), xuất `<anim>_<hướng>_hand.png`, ghi vào `rig.json` mỗi khung `[gx, gy, góc, dài, sau_lưng]` và `rig.weapon.nominal`; ảnh xem trước vẽ thử kiếm.
-  - [ ] **Chưa chạy được bản đóng gói có lớp kiếm**: máy hết bộ nhớ (RAM trống ~400 MB, ổ C ~240 MB). Tắt bớt chương trình rồi chạy `python -I tools/ai_sheet.py kiem_ai --preview drafts/weapon_layer/out`, kiểm tra ảnh xem trước (kiếm khớp tay mọi hướng). `assets/casters/chibi/kiem_ai/` hiện vẫn là bản không tách kiếm, game chạy bình thường.
-  - [ ] Viết `src/weapon_layer.js`: vẽ thân → kiếm (ảnh từ `weapons.json`, đặt grip tại (gx, gy), xoay `góc`, co dọc lưỡi theo `dài`, ngang theo `nominal`; `sau_lưng` = 1 thì vẽ trước thân) → bàn tay; nạp `_hand` cùng sheet thân.
+  - [x] **Đã đóng gói bản có lớp kiếm** (13/11/2026): `python -I tools/ai_sheet.py kiem_ai --preview drafts/weapon_layer/out` (~1,5 phút, cần ~1 GB RAM). `assets/casters/chibi/kiem_ai/` giờ là thân đã xoá kiếm + `*_hand.png`; kiếm do code vẽ.
+    - Khung `side/idle/0` gốc không thấy kiếm (thân che), dấu cũ đặt nhầm mũi vào tua. Đã đặt lại theo tư thế khung 1 và gắn cờ **`noerase`** (không xoá gì, chỉ lấy bàn tay). Cờ này sửa tay trong `weapon_marks.json`; `mark_weapon.py` lưu đè sẽ làm mất cờ, nhớ thêm lại nếu đánh dấu lại khung đó.
+  - [x] `src/weapon_layer.js` (13/11/2026): `TT.attachWeapon(scene, sprite, rig)` gắn ở `world.createPlayer` và màn chọn. Mỗi `postupdate` đọc texture/khung đang hiện của sprite, vẽ kiếm (grip tại (gx, gy), xoay `góc`, dọc lưỡi `dài`, ngang `nominal`; `sau_lưng` = 1 thì dưới thân), rồi bàn tay `_hand` đè lên. `TT.loadCasters` nạp thêm `weapons.json`, ảnh vũ khí, sheet `_hand`. Đổi vũ khí: `world.weapon.setWeapon(id)` (id trong `weapons.json`). Đã kiểm thử không giao diện: 6 hướng, đánh, tung chiêu, màn chọn, không lỗi.
+  - [ ] Chưa làm: bóng ảnh `ghost()` chưa có kiếm; `emitPoint` có thể lấy mũi kiếm từ dữ liệu `weapon` thay cho `emit.point`.
+  - [x] **Ngự kiếm hướng nam/bắc** (13/11/2026): ảnh bay chỉ có kiếm nằm ngang mũi sang phải, nên bay thẳng xuống/lên trông sai hướng. Đã đánh dấu 8 khung (`fly_se`, `fly_n`: hàng `fly` và `up/1`) với cờ **`band`** (xoá nguyên dải quanh trục kiếm, giữ giày; `weapon_detect.erase_band`). Khoá `turn` trong cấu hình `weapon` của `ai_sheet.py` xoay kiếm: nam 80° (mũi về người xem, nhân vật đứng giữa kiếm, nửa chuôi khuất sau người), bắc -90° (chắn kiếm dưới chân, chuôi lộ ra trước, lưỡi khuất sau người). Phần tử thứ 4 của `turn` là điểm trên kiếm đặt dưới bàn chân (0 = đốc, 0.5 = giữa). Phần tử thứ 6 của dữ liệu khung là bề ngang riêng (kiếm bay to hơn kiếm cầm tay). Hướng đông/đông bắc chưa tách (vẫn kiếm dính ảnh, đúng hướng sẵn).
   - Cách cắt ô mới cho ảnh 1 hàng (`split_parts`): mảng hình dính người nào thuộc khung đó, vệt chém rời thuộc người gần nhất, nên kiếm/vệt chém không còn bị cắt đôi sang khung bên.
 - [ ] Ngự kiếm tách người và kiếm, kiếm bay theo vũ khí trang bị.
 - [ ] Hệ thống trang bị 6 ô, túi đồ (E), phẩm cấp, rơi đồ.
 - [ ] Thử nghiệm thay vũ khí trên tay bằng code (dò lưỡi kiếm, vẽ đè).
 - [ ] Bộ y phục thứ hai trở đi cho Kiếm Tu.
 - [ ] Thay các hiệu ứng vẽ đơn giản còn lại bằng pixelfx: tia lửa khi trúng (`hit-spark`, `crit-hit`), vệt chém đòn thường, trạng thái quái (`frozen`, `poisoned`…), yêu thú chết (`soul-rise`).
+- [ ] **Đạo Gia** (`dao_ai`, đang làm): đạo sĩ pha nét thư sinh, vũ khí bút lông, vật cưỡi là cây bút phóng to. Câu lệnh: **`docs/CAU_LENH_DAO_GIA.md`** (sinh bằng `tools/gen_cau_lenh_dao.py`), ảnh lưu `dao/`.
+  - [x] Ảnh mẫu 5 hướng (bảng xoay), bản khổ rộng `dao_<hướng>_ref_wide.png` để Gemini vẽ đủ 6 khung.
+  - [x] Bút: `assets/weapons/dao_but.png` (id `dao_but`).
+  - [x] Hàng đứng `idle` 5 hướng. Đã đóng gói thử (`SETS["dao_ai"]` trong `ai_sheet.py`, tự sinh từ `DAO_ROWS`; động tác chưa có ảnh tạm mượn hàng đứng) và gắn tạm vào **Nho Đạo** (`TT.CUSTOM_CASTERS.nho`).
+  - [x] Ảnh mẫu không bút `dao_<hướng>_ref_nb(_wide).png` (cắt từ `dao_turnaround_nb.png` bằng đường cắt uốn lượn). Từ hàng chạy dùng **cách B**: Gemini vẽ tay nắm không, code vẽ bút.
+  - [x] Hàng chạy `run` 5 hướng (cách B, tay nắm không). Chân chưa đổi bên rõ (Gemini vẽ cùng một chân bước trước ở các khung sải bước); dùng tạm, để sửa sau. Trình đóng gói thêm `remove_ground_lines` (xoá vạch đất AI tự vẽ dưới chân).
+  - **Đánh thường là đánh xa** (người dùng chốt 13/11/2026): vẽ chữ trên không bằng bút, nét mực đen viền trắng bùng thành hạt năng lượng trắng đen. Ảnh chỉ có nét mực và chùm hạt sát tay; **đạn bay xa do code** (cần nhánh đánh xa cho `nho` trong `doSlash` của `world.js`, khung chạm = khung 4). Đây là chỗ Đạo Gia khác bộ động tác chung: cùng số khung và khung chạm, khác tầm đánh.
+  - [x] Hàng đánh `attack` 5 hướng + **đánh xa trong game** (13/11/2026): `world.inkShot` bắn viên mực trắng đen (texture `ink_ball`) từ khung trúng, trúng yêu thú đầu tiên trên đường (tầm 120, đòn 3: 150 và 3 tia toả quạt). Khung trúng đòn 1 = khung 4 (`DAO_CONTACT`). Khung 5 của `ne_attack`, `n_attack` bị Gemini vẽ mờ cả người, thay bằng khung 4 (`DAO_FIX`). Ở vài hướng tay vươn ra viết là tay không cầm bút: lớp bút theo tay đang viết.
+  - **Thi pháp Đạo Gia** (người dùng chốt 13/11/2026): khung 1–2 viết liên tục trên không (động tác `cast`, giữ khi tụ chiêu), khung 3–6 phất tay **ném chữ vừa viết** vào địch (`cast_point`). **Mọi chiêu của Đạo Gia đều liên quan đến chữ** và dùng chung kiểu này: hiệu ứng chiêu (code) = một chữ/nét mực phát sáng bay từ tay tới mục tiêu rồi phát tác. Khi làm bộ chiêu riêng cho `nho` (hiện mượn của Pháp Tu) thì theo nguyên tắc này.
+  - **Tay cầm bút = tay viết** ở mọi động tác (người dùng chốt). Ở **hai hướng chéo** bút ở **tay phải thật** của nhân vật, vì Gemini luôn viết/ném bằng tay này ở góc chéo: **SE** = tay xa (bên trái ảnh), **NE** = bên phải ảnh. Thẳng, ngang, sau lưng giữ tay trái thật. Phải vẽ lại `dao_se_idle`, `dao_se_run`, `dao_se_cast` theo câu lệnh mới; `dao_se_attack` hiện có đã đúng. Hàng đánh sau lưng lấy ảnh lật ngang (`DAO_FLIP`). `dao_ne_attack` giữ (đúng tay phải); `dao_ne_idle` đổi bút sang tay phải bằng `REGRIP` trong `mark_dao_brush.py`; `dao_ne_run`, `dao_ne_cast` đã vẽ lại (14/11). Còn: vẽ lại `dao_ne_idle` theo cách B nếu muốn bút rõ hơn.
+  - [x] Hàng thi pháp `cast` 5 hướng + bút (13/11/2026), đã vào game (`cast` = khung 1–2 tụ chiêu, `cast_point` = khung 3–6 ném). Sau lưng lấy ảnh lật (`DAO_FLIP`). Chiêu hiện vẫn mượn hiệu ứng Pháp Tu; làm bộ chiêu chữ riêng sau.
+  - [x] **Chiêu O: Giang Sơn Lưỡng Nghi Đồ** (`src/skill_giang_son.js`, id `giang_son`, thay `hoa_lien` ở ô O của `nho`; 14/11/2026): tụ chiêu 3,4 giây trên trận thái cực lưỡng nghi (vẽ code, phối cảnh), 18 nét mực bay lên tụ thành chữ 龍 trước mặt; ném chữ, trúng thì núi thuỷ mặc giáng xuống đè mục tiêu (bất động, tô xám qua `e.frozenTint`); hai mây thuỷ mặc chếch trên cao hai bên, hai rồng mực bổ xuống xuyên qua mục tiêu, núi vỡ thành mực. Toàn bộ trắng đen. Bản 3 (14/11): trận pháp bán kính 110 (gấp ~2 bản đầu); mây hiện cùng trận pháp, to bằng trận; rồng bay ra từ mây và ngoạm vào mục tiêu (dừng, lắc đầu, tan thành mực); rồng nối đốt (đầu `gs_dhead` + 44 lát thân `gs_dbody` cắt từ kim long) bay theo đường bézier lượn từ mây xuống, thân bám vết đầu; camera tự lùi ra vừa khung chiêu (`camAim`) rồi trả lại; mây = xoáy mây Vạn Kiếm Quy Tông, rồng = kim long Phi Long Tại Thiên, đều đổi sang màu mực, núi vẽ lại bằng numpy: tất cả do `tools/make_giang_son_fx.py` tạo vào `assets/fx/giang_son/`, `boot.js` nạp qua `giang_son.json`.
+  - [ ] Các hàng còn lại theo ưu tiên: `hurt`, `dead` → `fly` → `atk2`, `atk3`. Có ảnh mới thì thêm hướng vào `DAO_ROWS[<động tác>]` rồi đóng gói lại.
+  - [x] **Lớp bút** cho hàng đứng, chạy, đánh (13/11/2026): `tools/mark_dao_brush.py` ghi `dao/brush_marks.json` (toạ độ ảnh nguồn). Hàng cách B: bảng `HAND` (nắm tay + góc bút, đặt tay theo lưới `rowgrid`). Hàng đứng cách A có bút vẽ sẵn: bảng `PAINTED` (xoá bút cũ, vẽ lại bút mới ở nắm tay, cờ `draw_len`/`draw_grip` trong `ai_sheet.weapon_cell`). Dò tự động (`weapon_detect.detect`) bắt nhầm tóc, không dùng. Khi thêm hàng mới: thêm dòng vào `HAND`, chạy `mark_dao_brush.py` rồi `ai_sheet.py dao_ai`. Chưa ổn: bút hướng thẳng hơi khuất sau tay áo; chưa có lớp bàn tay đè lên chuôi (bút nằm trên nắm tay).
+  - Trình đóng gói thêm: `stand_px` (chiều cao đứng đích trong khung, vì ảnh mỗi bộ một cỡ; Đạo Gia 82 do mũ cao) và `unmark` (tự xoá dấu sao Gemini ở góc dưới phải, `remove_gemini_mark`).
+
 - [ ] Các tông môn khác:
   - Nho Đạo (bút + quyển trục tre);
   - Quỷ Tu (cờ phiên);

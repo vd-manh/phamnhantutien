@@ -617,6 +617,7 @@ TT.WorldScene = class extends Phaser.Scene {
       const bk = TT.DATA.casterScale / TT.rigScale(rig);   // thân va chạm giữ cùng kích thước thế giới với mọi bộ
       this.player.body.setSize(16 * bk, 10 * bk).setOffset(a.pivot[0] - 8 * bk, a.pivot[1] - 9 * bk);
       this.pH = rig.height * TT.rigScale(rig);             // chiều cao nhân vật theo đơn vị thế giới
+      this.weapon = TT.attachWeapon(this, this.player, rig);  // kiếm tách rời (src/weapon_layer.js)
       this.shadow.setScale(1.4, 1.2);
     } else {
       this.player = this.physics.add.sprite(sp.x, sp.y + 50, 'hero', 0).setOrigin(0.5, 22 / 24);
@@ -942,6 +943,12 @@ TT.WorldScene = class extends Phaser.Scene {
     const strike = () => {
       if (this.dead) return;
       const hx = p.x + dx * reach, hy = p.y - this.pH * 0.45 + dy * reach;
+      if (this.cls === 'nho') {                                     // Đạo Gia: vẽ chữ trên không, bắn hạt mực trắng đen đi xa
+        const shots = big ? [-0.28, 0, 0.28] : [0];
+        shots.forEach(da => this.inkShot(hx, hy, ang + da, big));
+        TT.SFX.slash(big);
+        return;
+      }
       if (this.cls === 'vo') {                                      // Võ Tu: chưởng ấn, không có vệt kiếm
         const col = big ? 0xffe08a : 0xffb347;
         TT.FX.ring(this, hx, hy, col, big ? 1.1 : 0.7, big ? 320 : 220);
@@ -986,6 +993,55 @@ TT.WorldScene = class extends Phaser.Scene {
     });
   }
 
+  // Đạo Gia: một chùm hạt năng lượng trắng đen bay thẳng, trúng yêu thú đầu tiên trên đường (đánh xa)
+  inkShot(x, y, ang, big) {
+    const dx = Math.cos(ang), dy = Math.sin(ang), range = big ? 150 : 120, speed = 260;
+    const dmg = this.st.atk * (big ? 1.1 : 0.85);
+    if (!this.textures.exists('ink_ball')) {
+      // viên mực: nhân đen, viền trắng sáng, quầng mờ (vẽ một lần)
+      const g = this.make.graphics({ add: false });
+      g.fillStyle(0xffffff, 0.25).fillCircle(8, 8, 8);
+      g.fillStyle(0xffffff, 1).fillCircle(8, 8, 5);
+      g.fillStyle(0x111111, 1).fillCircle(8, 8, 3.5);
+      g.generateTexture('ink_ball', 16, 16);
+      g.destroy();
+    }
+    const core = this.add.image(x, y, 'ink_ball').setScale(big ? 0.75 : 0.6).setDepth(6100);
+    const glow = this.add.image(x, y, 'ink_ball').setScale(big ? 1.3 : 1).setAlpha(0.35)
+      .setBlendMode(Phaser.BlendModes.ADD).setDepth(6099);
+    const trail = this.add.particles(x, y, 'dot', {
+      speed: { min: 5, max: 25 }, lifespan: { min: 180, max: 380 }, scale: { start: 0.9, end: 0 },
+      tint: [0xffffff, 0x1a1a1a, 0xdddddd], frequency: 16, quantity: 2
+    }).setDepth(6098);
+    TT.FX.burst(this, x, y, [0xffffff, 0x111111], big ? 10 : 6, 60);
+    let t = 0, done = false;
+    const finish = (hx, hy, hit) => {
+      if (done) return;
+      done = true;
+      ev.remove();
+      TT.FX.burst(this, hx, hy, [0xffffff, 0x111111, 0xcccccc], hit ? (big ? 18 : 12) : 6, hit ? 120 : 50);
+      [core, glow].forEach(o => this.tweens.add({ targets: o, alpha: 0, scale: 0, duration: 120, onComplete: () => o.destroy() }));
+      trail.stop();
+      this.time.delayedCall(400, () => trail.destroy());
+    };
+    const ev = this.time.addEvent({
+      delay: 16, loop: true, callback: () => {
+        t += 16;
+        const d = Math.min(range, speed * t / 1000), cx = x + dx * d, cy = y + dy * d;
+        core.setPosition(cx, cy); glow.setPosition(cx, cy); trail.setPosition(cx, cy);
+        for (const e of this.enemies.getChildren()) {
+          if (!e.active || e.dying) continue;
+          if (Phaser.Math.Distance.Between(cx, cy, e.x, e.y - 5) > 12) continue;
+          this.damageEnemy(e, dmg * Phaser.Math.FloatBetween(0.9, 1.1), { kx: dx, ky: dy, force: big ? 140 : 90 });
+          this.hitStop(35);
+          finish(cx, cy, true);
+          return;
+        }
+        if (d >= range) finish(cx, cy, false);
+      }
+    });
+  }
+
   hitEnemiesInRadius(x, y, r, dmg, kb) {
     let hits = 0;
     this.enemies.getChildren().slice().forEach(e => {
@@ -1020,7 +1076,7 @@ TT.WorldScene = class extends Phaser.Scene {
     }
     const f = (kb && kb.force) || 140;
     if (this.time.now < (e.frozenUntil || 0)) {           // đang bất động: không bị đẩy lùi
-      this.time.delayedCall(75, () => { if (e.active && e.timeTint) e.setTint(0x9fd8b8); });
+      this.time.delayedCall(75, () => { if (e.active && e.timeTint) e.setTint(e.frozenTint || 0x9fd8b8); });
       if (e.hp <= 0) this.killEnemy(e);
       return;
     }
@@ -1133,7 +1189,7 @@ TT.WorldScene = class extends Phaser.Scene {
       if (frozen && !e.dying) {
         e.setVelocity(0);
         if (e.anims && e.anims.isPlaying) e.anims.pause();
-        if (!e.timeTint) { e.setTint(0x9fd8b8); e.timeTint = true; }
+        if (!e.timeTint) { e.setTint(e.frozenTint || 0x9fd8b8); e.timeTint = true; }
         return;
       } else if (e.timeTint) {
         e.timeTint = false; e.clearTint();

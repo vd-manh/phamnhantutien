@@ -1,0 +1,33 @@
+{
+ "gs_cloud": {
+  "img": "giang_son/gs_cloud.png",
+  "w": 337,
+  "h": 94,
+  "frames": 15
+ },
+ "gs_dragon": {
+  "img": "giang_son/gs_dragon.png",
+  "w": 153,
+  "h": 129,
+  "frames": 4
+ },
+ "gs_dhead": {
+  "img": "giang_son/gs_dhead.png",
+  "w": 44,
+  "h": 70,
+  "frames": 1
+ },
+ "gs_dbody": {
+  "img": "giang_son/gs_dbody.png",
+  "w": 12,
+  "h": 32,
+  "frames": 1
+ },
+ "gs_mountain": {
+  "img": "giang_son/gs_mountain.png",
+  "w": 150,
+  "h": 128,
+  "frames": 1
+ },
+ "note": "Tạo bằng tools/make_giang_son_fx.py. Dùng trong src/skill_giang_son.js"
+}

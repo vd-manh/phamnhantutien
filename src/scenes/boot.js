@@ -11,6 +11,7 @@ TT.BootScene = class extends Phaser.Scene {
     this.load.on('loaderror', f => console.warn('[asset] không tải được', f && f.src));
     if (location.protocol !== 'file:') {
       this.load.json('bfx_manifest', 'assets/fx/manifest.json');
+      this.load.json('gs_meta', 'assets/fx/giang_son/giang_son.json');   // chiêu Giang Sơn (tools/make_giang_son_fx.py)
     }
   }
 
@@ -36,6 +37,14 @@ TT.BootScene = class extends Phaser.Scene {
       }
       queued++;
     });
+
+    // hình chiêu Giang Sơn Lưỡng Nghi Đồ: mây, rồng, núi thuỷ mặc (sprite sheet 1 hàng)
+    const gs = this.cache.json.get('gs_meta');
+    if (gs) for (const k of ['gs_cloud', 'gs_dragon', 'gs_dhead', 'gs_dbody', 'gs_mountain']) {
+      if (!gs[k]) continue;
+      this.load.spritesheet(k, base + gs[k].img, { frameWidth: gs[k].w, frameHeight: gs[k].h });
+      queued++;
+    }
 
     if (!queued) return this.toSelect();
     this.load.once('complete', () => {

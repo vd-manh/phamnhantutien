@@ -14,6 +14,7 @@ import os
 import sys
 from collections import deque
 
+import cv2
 import numpy as np
 from PIL import Image
 from scipy import ndimage
@@ -50,7 +51,13 @@ SETS = {
     "kiem_ai": dict(
         height=74,
         # lớp vũ khí tách rời: đánh dấu bằng tools/mark_weapon.py, ảnh vũ khí trong assets/weapons/
-        weapon=dict(marks="sword/weapon_marks.json", default="thanh_phong"),
+        weapon=dict(marks="sword/weapon_marks.json", default="thanh_phong",
+                    # ngự kiếm: ảnh bay chỉ có kiếm nằm ngang (mũi sang phải). Hướng nam/bắc xoay kiếm theo
+                    # trục dọc dưới chân: nam = mũi hướng về người xem (xuống), bắc = mũi hướng ra xa (lên).
+                    # (góc°, hệ số thu ngắn phối cảnh, hệ số bề ngang, điểm trên kiếm đặt dưới bàn chân: 0 = đốc, 0.5 = giữa).
+                    # Hướng nam mượn thân nhìn chéo nên lệch 10° theo mặt; nhân vật đứng giữa kiếm.
+                    turn={"fly": {"south": (80, 0.75, 1.4, 0.5), "north": (-90, 0.75, 1.4, 0.2)}},
+                    no_nominal={"fly"}),
         # nguồn: tên -> dict(path, box, rows, cols, names, size_from, fix)
         #   size_from: (nguồn, hàng, khung) dùng để đo chiều cao đứng -> tự chỉnh cỡ cho bằng nguồn "front"
         #   fix: {(hàng, khung): (hàng, khung)} thay khung hỏng bằng khung khác
@@ -123,6 +130,53 @@ SETS = {
         },
     ),
 }
+
+# Đạo Gia (docs/CAU_LENH_DAO_GIA.md): bộ động tác chung với Kiếm Tu. Hiện mới có hàng đứng 5 hướng;
+# động tác nào chưa có ảnh thì tạm mượn hàng đứng (thêm nguồn vào DAO_ROWS khi có ảnh mới).
+# khung hỏng -> khung thay (theo nguồn "<hướng>_<động tác>"): ne_attack khung 5 Gemini vẽ cả người mờ đi
+DAO_FIX = {"front": {("idle", 0): ("idle", 1)}, "ne_attack": {("attack", 4): ("attack", 3)}, "n_attack": {("attack", 4): ("attack", 3)}}
+# khung trúng riêng của Đạo Gia (chỉ số trong danh sách khung của động tác): đòn 1 bùng mực ở khung 4
+DAO_CONTACT = {"attack1": 3}
+# (động tác, hướng) lấy ảnh lật ngang: ảnh vẽ tay không cầm bút viết; nhìn thẳng / sau lưng gần đối xứng nên lật lại
+# thì tay viết trùng tay cầm bút ở hàng đứng, chạy
+DAO_FLIP = {("attack", "n"), ("cast", "n")}
+DAO_DIRS = {"south-east": "se", "south": "s", "east": "e", "north-east": "ne", "north": "n"}
+DAO_EXTRA = {}   # hàng mới có vài hướng: khai báo nguồn để đánh dấu bút, chưa đưa vào game
+DAO_ROWS = {"idle": ["se", "s", "e", "ne", "n"], "run": ["se", "s", "e", "ne", "n"], "attack": ["se", "s", "e", "ne", "n"], "cast": ["se", "s", "e", "ne", "n"]}          # động tác -> các hướng đã có ảnh dao/dao_<hướng>_<động tác>.png
+
+
+def _dao_set():
+    src, dsets = {}, {}
+    for row, dirs in list(DAO_ROWS.items()) + list(DAO_EXTRA.items()):
+        for k in dirs:
+            name = "front" if (row, k) == ("idle", "se") else f"{k}_{row}"   # "front" = nguồn chuẩn chiều cao
+            src[name] = dict(one_row(f"dao/dao_{k}_{row}.png", row, name), unmark=True)   # ảnh Gemini có dấu sao
+            if name in DAO_FIX:
+                src[name]["fix"] = DAO_FIX[name]
+    def pick(row):
+        # đủ 5 hướng mới dùng hàng đó; thiếu hướng nào thì cả động tác tạm mượn hàng đứng
+        full = all(k in DAO_ROWS.get(row, []) for k in DAO_DIRS.values())
+        r = row if full else "idle"
+        m = {d: ("front" if (r, k) == ("idle", "se") else f"{k}_{r}", (r, k) in DAO_FLIP) for d, k in DAO_DIRS.items()}
+        return mirror(m), full
+    anims = {}
+    for name, (dset, row, idx, fps, loop, contact, mode) in SETS["kiem_ai"]["anims"].items():
+        srow = {"atk": "attack", "cst": "cast"}.get(dset, row if dset != "fly" else "fly")
+        m, full = pick(srow)
+        key = "dao_" + srow
+        dsets[key] = m
+        r = srow if full else "idle"
+        if not full:
+            idx = [i for i in idx if i < 6][:len(idx)] or ALL6
+            mode = "frame"
+        anims[name] = (key, r, idx, fps, loop, contact if full else None, mode)
+        if full and name in DAO_CONTACT:
+            anims[name] = anims[name][:5] + (DAO_CONTACT[name],) + anims[name][6:]
+    return dict(height=74, stand_px=82, sources=src, dirsets=dsets, anims=anims,
+                weapon=dict(marks="dao/brush_marks.json", default="dao_but"))     # bút: tools/mark_dao_brush.py   # mũ đạo cao: 82 (Kiếm Tu ~76)
+
+
+SETS["dao_ai"] = _dao_set()
 
 
 def ink(rgb):
@@ -246,6 +300,72 @@ def split_parts(strip, cols):
     return out
 
 
+def _star(r, p=0.8, pad=5):
+    yy, xx = np.mgrid[-r - pad:r + pad + 1, -r - pad:r + pad + 1]
+    return (np.abs(xx) ** p + np.abs(yy) ** p) <= r ** p                 # sao 4 cánh: p=1 hình thoi, p<1 cánh lõm
+
+
+def remove_ground_lines(im, min_len=40, clear=0.7):
+    """Xoá vạch đất mảnh (AI tự vẽ dưới chân dù câu lệnh cấm): đoạn ngang tối dài >= min_len px mà
+    phía trên và phía dưới 3px phần lớn là nền trắng (khác viền áo, đế giày: đó là mảng dày). im: RGBA, sửa tại chỗ."""
+    rgb = im[..., :3].astype(int)
+    ink_ = rgb.min(2) < 200
+    white = rgb.min(2) > 235
+    H, W = ink_.shape
+    hit = np.zeros_like(ink_)
+    for y in range(3, H - 3):
+        row = ink_[y]
+        if row.sum() < min_len:
+            continue
+        x = 0
+        while x < W:
+            if not row[x]:
+                x += 1
+                continue
+            x0 = x
+            while x < W and row[x]:
+                x += 1
+            if x - x0 >= min_len:
+                above = white[y - 3, x0:x].mean()
+                below = white[y + 3, x0:x].mean()
+                if above >= clear and below >= clear:
+                    hit[y, x0:x] = True
+    if not hit.any():
+        return 0
+    hit = cv2.dilate(hit.astype(np.uint8), np.ones((3, 1), np.uint8)).astype(bool) & (rgb.min(2) < 245)
+    im[hit, :3] = 255
+    return int(hit.sum())
+
+
+def remove_gemini_mark(im, ncc_min=0.6, lift_min=3.0):
+    """Xoá dấu sao 4 cánh (lớp trắng mờ) Gemini đóng gần góc dưới phải ảnh (cách góc ~50-80px).
+    Dò bằng so khớp chuẩn hoá (matchTemplate) với khuôn hình sao ở vài cỡ, chỉ nhận khi khớp hình rõ
+    và vùng sao sáng hơn vành quanh nó; rồi vá bằng cv2.inpaint. im: RGBA, sửa tại chỗ. Trả True nếu đã xoá."""
+    H, W = im.shape[:2]
+    Y0, X0 = max(0, H - 130), max(0, W - 130)
+    g = im[Y0:, X0:, :3].astype(np.float32).mean(2)
+    best = None
+    for r, pw in [(r, pw) for r in range(8, 17, 1) for pw in (0.67, 0.8, 1.0)]:
+        st = _star(r, pw)
+        if st.shape[0] > g.shape[0] or st.shape[1] > g.shape[1]:
+            continue
+        res = cv2.matchTemplate(g, st.astype(np.float32), cv2.TM_CCOEFF_NORMED)
+        _, mx, _, loc = cv2.minMaxLoc(res)
+        if best is None or mx > best[0]:
+            best = (mx, loc, st)
+    if best is None or best[0] < ncc_min:
+        return False
+    _, (x, y), st = best
+    win = g[y:y + st.shape[0], x:x + st.shape[1]]
+    ring = cv2.dilate(st.astype(np.uint8), np.ones((5, 5), np.uint8)).astype(bool) & ~st
+    if win[st].mean() - win[ring].mean() < lift_min:
+        return False
+    m = np.zeros((H, W), np.uint8)
+    m[Y0 + y:Y0 + y + st.shape[0], X0 + x:X0 + x + st.shape[1]] = cv2.dilate(st.astype(np.uint8), np.ones((5, 5), np.uint8))
+    im[..., :3] = cv2.inpaint(np.ascontiguousarray(im[..., :3]), m, 3, cv2.INPAINT_TELEA)
+    return True
+
+
 def split(src, boxes=None, centers=None):
     """Cắt ảnh nguồn thành lưới ô (đã xoá nền).
     boxes: nếu là list, được điền [[(x0, y0) góc trái-trên của từng ô trong ảnh nguồn]] theo hàng.
@@ -254,6 +374,9 @@ def split(src, boxes=None, centers=None):
     if not files:
         raise SystemExit("không tìm thấy ảnh: " + src["path"])
     im = np.array(Image.open(files[0]).convert("RGBA"))
+    if src.get("unmark"):
+        remove_gemini_mark(im)
+        remove_ground_lines(im)
     bx, by = 0, 0
     if src.get("box"):
         x0, y0, x1, y1 = src["box"]
@@ -338,6 +461,8 @@ def load_weapon(wid):
 def draw_weapon(canvas, wimg, wdef, wd, nominal):
     """Vẽ thử vũ khí lên khung (cho ảnh xem trước), cùng phép biến đổi như src/weapon_layer.js."""
     gx, gy, ang, ln = wd[:4]
+    if len(wd) > 5 and wd[5]:
+        nominal = wd[5]
     (x0, y0), (x1, y1) = wdef["grip"], wdef["tip"]
     L = float(np.hypot(x1 - x0, y1 - y0))
     sx, sy = ln / L, nominal / L
@@ -358,7 +483,7 @@ def build(key, preview=None):
     marks = {}
     if wcfg:
         sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-        from weapon_detect import erase_weapon
+        from weapon_detect import erase_weapon, erase_band, hand_overlay_mask
         mp = os.path.join(ROOT, wcfg["marks"])
         if os.path.exists(mp):
             with open(mp, encoding="utf8") as f:
@@ -376,6 +501,8 @@ def build(key, preview=None):
         return float(np.median([stand_height(g[names.index(row)][i]) for i in idxs]))
 
     ref_h = median_h("front", "idle", range(6))
+    # stand_px: chiều cao đứng đích trong khung (ảnh nguồn mỗi bộ một cỡ); bỏ trống = hệ số SHRINK cố định
+    shrink = cfg["stand_px"] / ref_h if cfg.get("stand_px") else SHRINK
     kmul = {}
     for name, src in cfg["sources"].items():
         if src.get("size_from"):
@@ -427,7 +554,26 @@ def build(key, preview=None):
                 g = (mk["grip"][0] - ox, mk["grip"][1] - oy)
                 t = (mk["tip"][0] - ox, mk["tip"][1] - oy)
                 u = stand_height(row_cells(src, row)[0]) / 400.0
-                body, hand = erase_weapon(cell, g, t, u)
+                if mk.get("band"):
+                    # kiếm to dưới chân (ngự kiếm): xoá nguyên dải quanh trục, không lấy lớp bàn tay
+                    body, hand = erase_band(cell, g, t, mk["band"]), np.zeros_like(cell)
+                elif mk.get("noerase"):
+                    # khung gốc không có kiếm (bị thân che): giữ nguyên thân, chỉ lấy bàn tay để vẽ đè lên kiếm
+                    a = cell[..., 3:4] / 255.0
+                    fr = (cell[..., :3] * a + 255 * (1 - a)).astype(np.uint8)
+                    hm = hand_overlay_mask(fr, g, u)
+                    body, hand = cell, np.zeros_like(cell)
+                    hand[hm] = cell[hm]
+                else:
+                    body, hand = erase_weapon(cell, g, t, u)
+                if mk.get("draw_len"):
+                    # xoá theo vũ khí vẽ sẵn (grip->tip), nhưng vẽ lại cùng hướng với độ dài thống nhất (px ảnh nguồn),
+                    # chuôi đặt ở draw_grip (nắm tay) nếu có
+                    L = float(np.hypot(t[0] - g[0], t[1] - g[1])) or 1.0
+                    ux, uy = (t[0] - g[0]) / L, (t[1] - g[1]) / L
+                    if mk.get("draw_grip"):
+                        g = (mk["draw_grip"][0] - ox, mk["draw_grip"][1] - oy)
+                    t = (g[0] + ux * mk["draw_len"], g[1] + uy * mk["draw_len"])
                 erase_cache[ck] = (body, hand if hand[..., 3].any() else None, (g, t, bool(mk.get("behind"))))
         return erase_cache[ck]
 
@@ -440,7 +586,7 @@ def build(key, preview=None):
         for d in DIRS8:
             src, flip = cfg["dirsets"][dset][d]
             cells, anc = row_cells(src, row), anchors(src, row, mode)
-            k = SHRINK * kmul[src]
+            k = shrink * kmul[src]
             frames, hands, wdata = [], [], []
             for i in idx:
                 body, hand, gt = weapon_cell(src, row, i)
@@ -454,8 +600,22 @@ def build(key, preview=None):
                 ft = frame_point(t, cw, *anc[i], flip, k)
                 ln = float(np.hypot(ft[0] - fg[0], ft[1] - fg[1]))
                 ang = float(np.degrees(np.arctan2(ft[1] - fg[1], ft[0] - fg[0])))
-                wdata.append([round(fg[0], 1), round(fg[1], 1), round(ang, 1), round(ln, 1), 1 if behind else 0])
-                lens.append(ln)
+                wide = 0
+                if dset in wcfg.get("no_nominal", ()):
+                    wide = ln            # kiếm bay: bề ngang co giãn đều theo chiều dài gốc, không theo kiếm cầm tay
+                turn = wcfg.get("turn", {}).get(dset, {}).get(d)
+                if turn:
+                    # đặt kiếm dọc dưới chân: điểm `at` của kiếm nằm ngay dưới bàn chân, giữa thân (PX).
+                    # Thân vẽ đè lên (sau_lưng = 1): bay xuống thì chuôi khuất sau người, bay lên thì lưỡi khuất.
+                    cy = (fg[1] + ft[1]) / 2
+                    ang, ln, wide = float(turn[0]), ln * turn[1], wide * turn[2]
+                    r = np.radians(ang)
+                    at = turn[3]
+                    fg = (PX - np.cos(r) * ln * at, cy - np.sin(r) * ln * at)
+                wdata.append([round(fg[0], 1), round(fg[1], 1), round(ang, 1), round(ln, 1), 1 if behind else 0]
+                             + ([round(wide, 1)] if wide else []))
+                if dset not in wcfg.get("no_nominal", ()):
+                    lens.append(ln)
             strip = Image.new("RGBA", (FW * len(frames), FH))
             for i, f in enumerate(frames):
                 strip.paste(f, (i * FW, 0))

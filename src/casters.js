@@ -7,7 +7,7 @@ TT.CasterRigs = TT.CasterRigs || {};    // rig đã đọc (kể cả khi mới 
 // Kiếm / Pháp / Quỷ Tu dùng bộ hero vẽ tay (tools/hero_sects.py): một tạo hình chung cho nam & nữ, đổi màu theo cảnh giới
 TT.HERO_SECTS = { kiem: 1, phap: 1, quy: 1 };
 // bộ nhân vật vẽ sẵn (ảnh AI, tools/ai_sheet.py) thay cho cả tông môn, mọi cảnh giới & giới tính
-TT.CUSTOM_CASTERS = { kiem: 'kiem_ai' };
+TT.CUSTOM_CASTERS = { kiem: 'kiem_ai', nho: 'dao_ai' };   // nho: Đạo Gia (dao_ai), đang làm dở: mới có hàng đứng
 TT.casterKey = (cls, gender, realm) => {
   if (TT.CUSTOM_CASTERS[cls]) return TT.CUSTOM_CASTERS[cls];
   const r = Math.max(0, Math.min(5, realm | 0));
@@ -25,7 +25,12 @@ TT.loadCasters = function (scene, keys, done, opts) {
   if (!need.length || location.protocol === 'file:') { done(); return; }
   const L = scene.load;
   need.forEach(k => L.json('rig_' + k, TT.casterBase(k) + 'rig.json'));
+  if (!TT.Weapons && !scene.cache.json.exists('tt_weapons')) L.json('tt_weapons', TT.WEAPON_BASE + 'weapons.json');
   L.once('complete', () => {
+    if (!TT.Weapons) {
+      const wj = scene.cache.json.get('tt_weapons');
+      if (wj && wj.weapons) TT.Weapons = wj.weapons;
+    }
     const rigs = {};
     need.forEach(k => {
       const r = scene.cache.json.get('rig_' + k);
@@ -41,7 +46,17 @@ TT.loadCasters = function (scene, keys, done, opts) {
           if (scene.textures.exists(tk)) continue;
           L.spritesheet(tk, TT.casterBase(k) + a.sheets[d], { frameWidth: a.frame[0], frameHeight: a.frame[1] });
           queued++;
+          // lớp bàn tay nắm vũ khí (src/weapon_layer.js)
+          if (a.hands && a.hands[d] && !scene.textures.exists(tk + '_hand')) {
+            L.spritesheet(tk + '_hand', TT.casterBase(k) + a.hands[d], { frameWidth: a.frame[0], frameHeight: a.frame[1] });
+            queued++;
+          }
         }
+      }
+      const wd = r.weapon && TT.Weapons && TT.Weapons[r.weapon.default];
+      if (wd && !scene.textures.exists(TT.weaponTex(r.weapon.default))) {
+        L.image(TT.weaponTex(r.weapon.default), TT.WEAPON_BASE + wd.img);
+        queued++;
       }
     }
     const finish = () => {

@@ -30,6 +30,7 @@ TT.SelectScene = class extends Phaser.Scene {
         const a = rig.anims.idle;
         spr = this.add.sprite(x, y, 'c_' + ck + '_idle_south', 0).setOrigin(a.pivot[0] / a.frame[0], a.pivot[1] / a.frame[1]).setScale(4 * TT.rigScale(rig));
         spr.play('c_' + ck + '_idle_south');
+        TT.attachWeapon(this, spr, rig);
       } else {
         spr = this.add.sprite(x, y, 'hero', 0).setOrigin(0.5, 22 / 24).setScale(5).play('hero_idle');
         if (cls === 'phap') spr.setTint(0xd8c8ff);

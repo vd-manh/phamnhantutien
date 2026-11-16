@@ -429,6 +429,118 @@
     619.6
    ]
   },
+  "fly_n/fly/0": {
+   "at": "2026-11-13",
+   "band": 9,
+   "behind": true,
+   "by": "claude",
+   "grip": [
+    546.4,
+    828.1
+   ],
+   "tip": [
+    658,
+    843
+   ]
+  },
+  "fly_n/fly/1": {
+   "at": "2026-11-13",
+   "band": 9,
+   "behind": true,
+   "by": "claude",
+   "grip": [
+    714.5,
+    826.1
+   ],
+   "tip": [
+    828,
+    841
+   ]
+  },
+  "fly_n/fly/2": {
+   "at": "2026-11-13",
+   "band": 9,
+   "behind": true,
+   "by": "claude",
+   "grip": [
+    884.5,
+    828.1
+   ],
+   "tip": [
+    998,
+    843
+   ]
+  },
+  "fly_n/up/1": {
+   "at": "2026-11-13",
+   "band": 9,
+   "behind": true,
+   "by": "claude",
+   "grip": [
+    721.7,
+    675.4
+   ],
+   "tip": [
+    824.5,
+    654.5
+   ]
+  },
+  "fly_se/fly/0": {
+   "at": "2026-11-13",
+   "band": 9,
+   "behind": true,
+   "by": "claude",
+   "grip": [
+    548.6,
+    321.1
+   ],
+   "tip": [
+    663,
+    336
+   ]
+  },
+  "fly_se/fly/1": {
+   "at": "2026-11-13",
+   "band": 9,
+   "behind": true,
+   "by": "claude",
+   "grip": [
+    714.9,
+    319.1
+   ],
+   "tip": [
+    833,
+    334
+   ]
+  },
+  "fly_se/fly/2": {
+   "at": "2026-11-13",
+   "band": 9,
+   "behind": true,
+   "by": "claude",
+   "grip": [
+    884.9,
+    319.1
+   ],
+   "tip": [
+    1003,
+    334
+   ]
+  },
+  "fly_se/up/1": {
+   "at": "2026-11-13",
+   "band": 9,
+   "behind": true,
+   "by": "claude",
+   "grip": [
+    717.5,
+    163.8
+   ],
+   "tip": [
+    824.5,
+    147.5
+   ]
+  },
   "front/dead/0": {
    "at": "2026-11-12",
    "behind": false,
@@ -1483,16 +1595,17 @@
    ]
   },
   "side/idle/0": {
-   "at": "2026-11-12",
+   "at": "2026-11-13",
    "behind": false,
    "by": "tay",
    "grip": [
-    62,
-    113.7
+    75.8,
+    116.1
    ],
+   "noerase": true,
    "tip": [
-    43.3,
-    135
+    112.6,
+    141.3
    ]
   },
   "side/idle/1": {

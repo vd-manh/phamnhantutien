@@ -4,9 +4,28 @@
   "thanh_phong": {
    "name": "Thanh Phong Kiếm",
    "img": "thanh_phong.png",
-   "grip": [12, 18],
-   "tip": [174, 17],
+   "grip": [
+    12,
+    18
+   ],
+   "tip": [
+    174,
+    17
+   ],
    "source": "tách từ khung ngã nhìn ngang (sword/kiem_side_dead.png.png), bỏ tua"
+  },
+  "dao_but": {
+   "name": "Thanh Mặc Bút",
+   "img": "dao_but.png",
+   "grip": [
+    39,
+    13.5
+   ],
+   "tip": [
+    178,
+    13.5
+   ],
+   "source": "dao/dao_brush.png (Gemini), tách nền, thu về rộng 180; grip ngay sau đốc ngọc. Dùng cho bút cầm tay và vật cưỡi của Đạo Gia"
   }
  }
 }

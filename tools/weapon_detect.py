@@ -150,7 +150,8 @@ def axis_mask(fr, grip, tip, u=1.0):
     offs = []
     for o in np.arange(-12 * u, 12 * u + 0.01, max(0.5, u)):
         pts = [grip + d * (L * t) + nrm * o for t in np.linspace(0.35, 0.9, 15)]
-        v = [cb[int(round(p[1])), int(round(p[0]))] for p in pts if 0 <= p[0] < W and 0 <= p[1] < H]
+        q = [(int(round(p[0])), int(round(p[1]))) for p in pts]
+        v = [cb[y, x] for x, y in q if 0 <= x < W and 0 <= y < H]
         if v and np.mean(v) > 0.5:
             offs.append(o)
     if offs:
@@ -210,3 +211,24 @@ def erase_weapon(cell, grip, tip, u=1.0):
     hl = np.zeros_like(cell)
     hl[hand] = cell[hand]
     return body, hl
+
+
+def erase_band(cell, grip, tip, half, back=14.0, front=4.0):
+    """Xoá cả dải quanh trục chuôi->mũi (kiếm to nằm dưới chân khi ngự kiếm), giữ lại giày (tối, ít sắc).
+    half: nửa bề ngang dải; back/front: phần nới thêm phía đốc kiếm (tua) và phía mũi. Đơn vị: px của ô."""
+    H, W = cell.shape[:2]
+    g, t = np.asarray(grip, float), np.asarray(tip, float)
+    L = float(np.hypot(*(t - g)))
+    d = (t - g) / max(L, 1e-6)
+    nrm = np.array([-d[1], d[0]])
+    yy, xx = np.mgrid[0:H, 0:W]
+    rel = np.stack([xx - g[0], yy - g[1]], -1)
+    tt, dist = rel @ d, np.abs(rel @ nrm)
+    band = (tt >= -back) & (tt <= L + front) & (dist <= half)
+    rgb = cell[..., :3].astype(np.uint8)
+    hsv = cv2.cvtColor(np.ascontiguousarray(rgb), cv2.COLOR_RGB2HSV)
+    shoe = (hsv[..., 2] < 110) & (hsv[..., 1] < 90) & (rel @ nrm < 0)   # giày: tối, ít sắc, nằm phía trên trục
+    m = band & ~shoe & (cell[..., 3] > 0)
+    body = cell.copy()
+    body[m, 3] = 0
+    return body
