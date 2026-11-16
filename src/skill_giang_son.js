@@ -186,6 +186,8 @@ window.TT = window.TT || {};
     }
   }
 
+  TT.Skills._gsTextures = ensureTextures;     // dùng chung: nét bút gs_stroke (chiêu Nhất Lệnh)
+
   TT.Skills.giang_son = function (w, sk, now) {
     ensureTextures(w);
     const p = w.player, t0 = now, dmg = w.st.atk * sk.dmg;
@@ -320,7 +322,7 @@ window.TT = window.TT || {};
       camAim(target.x, target.y);
       strokes.forEach(o => { if (!o.done) { o.done = true; o.s.destroy(); } });
       glyph.setAlpha(1).setScale(0.7);
-      w.playAnim(TT.Caster.anims.cast_point ? 'cast_point' : 'cast');
+      w.playAnim(TT.Caster && TT.Caster.anims.cast_point ? 'cast_point' : 'cast');
       w.lockUntil = Math.max(w.lockUntil, w.time.now + 500);
       w.skillLock = Math.max(w.skillLock, w.time.now + 500);
       TT.FX.flash(w, 0.12, 200, 0xffffff);

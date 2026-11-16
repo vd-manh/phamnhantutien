@@ -145,38 +145,63 @@ DAO_EXTRA = {}   # hàng mới có vài hướng: khai báo nguồn để đánh
 DAO_ROWS = {"idle": ["se", "s", "e", "ne", "n"], "run": ["se", "s", "e", "ne", "n"], "attack": ["se", "s", "e", "ne", "n"], "cast": ["se", "s", "e", "ne", "n"]}          # động tác -> các hướng đã có ảnh dao/dao_<hướng>_<động tác>.png
 
 
-def _dao_set():
+def std_set(folder, prefix, rows, fix=None, flip=(), contact=None, extra=None, stand_px=82, weapon=None, mount=None):
+    """Bộ nhân vật theo **bộ động tác chuẩn** (mẫu Đạo Gia, chốt 16/11/2026): chỉ có ảnh 4 hàng idle/run/attack/cast × 5 hướng,
+    ảnh tại <folder>/<prefix>_<hướng>_<động tác>.png. Động tác chưa đủ 5 hướng thì tạm mượn hàng đứng.
+    rows: {động tác: [các hướng đã có ảnh]};  fix: {nguồn: {(hàng, khung): (hàng, khung)}};  flip: {(động tác, hướng)} lấy ảnh lật;
+    contact: {anim: khung chạm};  extra: hàng mới vài hướng (khai báo nguồn để đánh dấu vũ khí, chưa vào game);
+    weapon: dict(marks, default);  mount: vật cưỡi khi bay {weapon, len, thick}.  Trúng đòn / ngã do code (noHurt, simpleDeath)."""
+    fix, contact, extra = fix or {}, contact or {}, extra or {}
     src, dsets = {}, {}
-    for row, dirs in list(DAO_ROWS.items()) + list(DAO_EXTRA.items()):
+    for row, dirs in list(rows.items()) + list(extra.items()):
         for k in dirs:
             name = "front" if (row, k) == ("idle", "se") else f"{k}_{row}"   # "front" = nguồn chuẩn chiều cao
-            src[name] = dict(one_row(f"dao/dao_{k}_{row}.png", row, name), unmark=True)   # ảnh Gemini có dấu sao
-            if name in DAO_FIX:
-                src[name]["fix"] = DAO_FIX[name]
+            src[name] = dict(one_row(f"{folder}/{prefix}_{k}_{row}.png", row, name), unmark=True)   # ảnh Gemini có dấu sao
+            if name in fix:
+                src[name]["fix"] = fix[name]
+
     def pick(row):
-        # đủ 5 hướng mới dùng hàng đó; thiếu hướng nào thì cả động tác tạm mượn hàng đứng
-        full = all(k in DAO_ROWS.get(row, []) for k in DAO_DIRS.values())
+        full = all(k in rows.get(row, []) for k in DAO_DIRS.values())
         r = row if full else "idle"
-        m = {d: ("front" if (r, k) == ("idle", "se") else f"{k}_{r}", (r, k) in DAO_FLIP) for d, k in DAO_DIRS.items()}
+        m = {d: ("front" if (r, k) == ("idle", "se") else f"{k}_{r}", (r, k) in flip) for d, k in DAO_DIRS.items()}
         return mirror(m), full
     anims = {}
-    for name, (dset, row, idx, fps, loop, contact, mode) in SETS["kiem_ai"]["anims"].items():
+    for name, (dset, row, idx, fps, loop, cont, mode) in SETS["kiem_ai"]["anims"].items():
         srow = {"atk": "attack", "cst": "cast"}.get(dset, row if dset != "fly" else "fly")
         m, full = pick(srow)
-        key = "dao_" + srow
+        key = prefix + "_" + srow
         dsets[key] = m
         r = srow if full else "idle"
         if not full:
             idx = [i for i in idx if i < 6][:len(idx)] or ALL6
             mode = "frame"
-        anims[name] = (key, r, idx, fps, loop, contact if full else None, mode)
-        if full and name in DAO_CONTACT:
-            anims[name] = anims[name][:5] + (DAO_CONTACT[name],) + anims[name][6:]
-    return dict(height=74, stand_px=82, sources=src, dirsets=dsets, anims=anims,
-                weapon=dict(marks="dao/brush_marks.json", default="dao_but"))     # bút: tools/mark_dao_brush.py   # mũ đạo cao: 82 (Kiếm Tu ~76)
+        anims[name] = (key, r, idx, fps, loop, cont if full else None, mode)
+        if full and name in contact:
+            anims[name] = anims[name][:5] + (contact[name],) + anims[name][6:]
+    flags = {"noHurt": 1, "simpleDeath": 1}
+    if mount:
+        flags["mount"] = mount
+    out = dict(height=74, stand_px=stand_px, sources=src, dirsets=dsets, anims=anims, rig_flags=flags)
+    if weapon:
+        out["weapon"] = weapon
+    return out
+
+
+def _dao_set():
+    # bút: tools/mark_dao_brush.py; mũ đạo cao nên stand_px 82 (Kiếm Tu ~76); bay = đứng + bút lớn dưới chân
+    return std_set("dao", "dao", DAO_ROWS, fix=DAO_FIX, flip=DAO_FLIP, contact=DAO_CONTACT, extra=DAO_EXTRA, stand_px=82,
+                   weapon=dict(marks="dao/brush_marks.json", default="dao_but"),
+                   mount={"weapon": "dao_but", "len": 64, "thick": 11})
 
 
 SETS["dao_ai"] = _dao_set()
+
+# Độc Tu (docs/CAU_LENH_DOC_TU*.md): vũ khí quạt gấp doc_quat (tools/mark_doc_fan.py), bay trên độc xà doc_ran
+DOC_ROWS = {"idle": ["se", "s", "e", "ne", "n"], "run": ["se", "s", "e", "ne", "n"], "attack": ["se", "s", "e", "ne", "n"], "cast": ["se", "s", "e", "ne", "n"]}
+SETS["doc_ai"] = std_set("doc", "doc", DOC_ROWS, stand_px=80, flip={("attack", "n"), ("cast", "n")}, contact={"attack1": 3},
+                         weapon=dict(marks="doc/fan_marks.json", default="doc_quat"),
+                         mount={"weapon": "doc_ran_south", "scale": 0.6,       # độc xà vẽ sẵn 5 hướng: tools/make_doc_mount.py
+                                "dirs": {d: "doc_ran_" + d for d in ("south", "south-east", "east", "north-east", "north")}})
 
 
 def ink(rgb):
@@ -540,6 +565,7 @@ def build(key, preview=None):
         os.remove(f)
     rig = {"name": key, "view": "top-down", "fps": 10, "directions": DIRS8, "pixel_scale": 1, "height": cfg["height"],
            "source": "Sprite sheet tạo bằng AI (thư mục sword/), đóng gói bằng tools/ai_sheet.py", "anims": {}}
+    rig.update(cfg.get("rig_flags", {}))       # vd noHurt / simpleDeath: game xử lý bằng code, không cần ảnh
     def weapon_cell(src, row, i):
         """(thân đã xoá kiếm, lớp bàn tay hoặc None, (chuôi, mũi) trong toạ độ ô hoặc None)."""
         ck = (src, row, i)
@@ -638,6 +664,15 @@ def build(key, preview=None):
     if wcfg and lens:
         # chiều dài "chuẩn" (không bị thu ngắn phối cảnh) của chuôi->mũi trong khung: dùng cho bề ngang vũ khí
         rig["weapon"] = {"default": wcfg["default"], "nominal": round(float(np.percentile(lens, 75)), 1)}
+    if isinstance(rig.get("mount"), dict) and "fly" in rig["anims"]:
+        # tâm hai bàn chân so với điểm neo (PX) ở từng hướng, đo trên khung bay đầu tiên: vật cưỡi đặt vào giữa hai chân
+        off = {}
+        for d, name in rig["anims"]["fly"]["sheets"].items():
+            fr = np.array(Image.open(os.path.join(dst, name)).convert("RGBA"))[:, :FW]
+            band = fr[PY - 7:PY + 1, :, 3] > 40                   # dải giày sát mặt đất
+            xs = np.where(band.any(0))[0]
+            off[d] = round(float((xs.min() + xs.max()) / 2 - PX), 1) if len(xs) else 0
+        rig["mount"] = dict(rig["mount"], foot=off)
     with open(os.path.join(dst, "rig.json"), "w", encoding="utf8") as f:
         json.dump(rig, f, ensure_ascii=False, indent=1)
     if preview:

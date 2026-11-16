@@ -257,7 +257,7 @@ window.TT = window.TT || {};
       target = e ? { x: e.x, y: e.y, e } : { x: p.x + w.facing.x * 130, y: p.y + w.facing.y * 130 };
       phase = 'launch'; launchT = w.time.now;
       // động tác chỉ kiếm thi pháp (khung 3-6 của hàng thi pháp); giữ đến khi kiếm cuối rời khiên
-      w.playAnim(TT.Caster.anims.cast_point ? 'cast_point' : 'cast');
+      w.playAnim(TT.Caster && TT.Caster.anims.cast_point ? 'cast_point' : 'cast');
       const hold = N * STAGGER + 250;
       w.lockUntil = Math.max(w.lockUntil, launchT + hold);
       w.skillLock = Math.max(w.skillLock, launchT + hold);

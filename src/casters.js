@@ -7,7 +7,7 @@ TT.CasterRigs = TT.CasterRigs || {};    // rig đã đọc (kể cả khi mới 
 // Kiếm / Pháp / Quỷ Tu dùng bộ hero vẽ tay (tools/hero_sects.py): một tạo hình chung cho nam & nữ, đổi màu theo cảnh giới
 TT.HERO_SECTS = { kiem: 1, phap: 1, quy: 1 };
 // bộ nhân vật vẽ sẵn (ảnh AI, tools/ai_sheet.py) thay cho cả tông môn, mọi cảnh giới & giới tính
-TT.CUSTOM_CASTERS = { kiem: 'kiem_ai', nho: 'dao_ai' };   // nho: Đạo Gia (dao_ai), đang làm dở: mới có hàng đứng
+TT.CUSTOM_CASTERS = { kiem: 'kiem_ai', nho: 'dao_ai', doc: 'doc_ai' };   // bộ vẽ AI (tools/ai_sheet.py) cho mọi cảnh giới, giới tính
 TT.casterKey = (cls, gender, realm) => {
   if (TT.CUSTOM_CASTERS[cls]) return TT.CUSTOM_CASTERS[cls];
   const r = Math.max(0, Math.min(5, realm | 0));
@@ -53,11 +53,14 @@ TT.loadCasters = function (scene, keys, done, opts) {
           }
         }
       }
-      const wd = r.weapon && TT.Weapons && TT.Weapons[r.weapon.default];
-      if (wd && !scene.textures.exists(TT.weaponTex(r.weapon.default))) {
-        L.image(TT.weaponTex(r.weapon.default), TT.WEAPON_BASE + wd.img);
-        queued++;
-      }
+      // ảnh vũ khí cầm tay + vật cưỡi khi bay (rig.mount.weapon, có thể là ảnh khác, vd rắn của Độc Tu)
+      [r.weapon && r.weapon.default, r.mount && r.mount.weapon].concat(r.mount && r.mount.dirs ? Object.values(r.mount.dirs) : []).forEach(id => {
+        const wd = id && TT.Weapons && TT.Weapons[id];
+        if (wd && !scene.textures.exists(TT.weaponTex(id))) {
+          L.image(TT.weaponTex(id), TT.WEAPON_BASE + wd.img);
+          queued++;
+        }
+      });
     }
     const finish = () => {
       for (const [k, r] of Object.entries(rigs)) {

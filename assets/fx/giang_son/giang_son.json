@@ -29,5 +29,21 @@
   "h": 128,
   "frames": 1
  },
- "note": "Tạo bằng tools/make_giang_son_fx.py. Dùng trong src/skill_giang_son.js"
+ "gs_hand": {
+  "img": "giang_son/gs_hand.png",
+  "w": 49,
+  "h": 112,
+  "frames": 1,
+  "stone": [
+   27.4,
+   101.9
+  ],
+  "sleeve": [
+   9,
+   45
+  ],
+  "sleeveColor": 15722964,
+  "sleeveShade": 12894126
+ },
+ "note": "Tạo bằng tools/make_giang_son_fx.py. Dùng trong src/skill_giang_son.js, src/skill_nhat_lenh.js"
 }

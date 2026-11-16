@@ -69,7 +69,14 @@ TT.DATA = {
       caster: 'assets/casters/nho_dao_topdown', aura: [0xffffff, 0xc8ccd8, 0x8890a0],
       desc: 'Đạo pháp tự nhiên, áo trắng mực đen. Một tay đại bút, một tay thẻ tre, lấy chữ hóa pháp. (5 ô chiêu tạm mượn của Pháp Tu.)',
       hpMul: 1.0, mpMul: 1.35, atkMul: 1.05, basic: { name: 'Bút Pháp', glyph: '筆' },
-      skills: ['loi_phap', 'bang_vu', 'loi_than', 'tinh_long', 'giang_son']
+      skills: ['loi_phap', 'bang_vu', 'loi_kiep', 'nhat_lenh', 'giang_son']
+    },
+    doc: {
+      name: 'Độc Tu', title: 'U Minh Độc Phiến', color: '#7dff9a',
+      aura: [0x3cff7a, 0x9b5cff, 0x1d3b24],
+      desc: 'Lấy độc nhập đạo. Phẩy quạt phóng độc châm, độc thấm dần vào kinh mạch địch; bay trên lưng độc xà hai sừng. (5 ô chiêu tạm mượn của Pháp Tu.)',
+      hpMul: 0.95, mpMul: 1.25, atkMul: 1.05, basic: { name: 'Độc Châm', glyph: '毒' },
+      skills: ['loi_phap', 'bang_vu', 'loi_than', 'tinh_long', 'van_doc']
     }
   },
 
@@ -91,6 +98,12 @@ TT.DATA = {
                   desc: 'Định trụ thời gian của một yêu thú: đồng hồ hiện trên đầu, mục tiêu bất động; chớp di quanh nó chém liên tục tám nhát, mỗi nhát để lại tàn ảnh xanh lục, nhát cuối kiếm quang lớn rồi đồng hồ quay ngược.' },
     dai_canh:   { name: 'Đại Canh Kiếm Trận', glyph: '庚', color: '#5dffa0', cost: 55, cd: 20,  dmg: 1.5,
                   desc: 'Tuyệt kỹ: tụ lực 4 giây, pháp trận xanh lục hiện dưới chân, mười hai phi kiếm quấn lôi điện bay lên xếp thành vòng sau lưng rồi xoắn thành lốc xoáy lao tới mục tiêu, kích nổ lôi trận.' },
+    van_doc:    { name: 'Vạn Độc Trận', glyph: '毒', color: '#7dff9a', cost: 55, cd: 20, dmg: 0.9,
+                  desc: 'Tuyệt kỹ: kết độc trận dưới chân, liên tục gọi ngũ độc (rắn, rết, bọ cạp, cóc, nhện) nhảy ra từ trận cắn vào yêu thú, mỗi nhát gây nhiễm độc; trận tan thì bùng một vòng độc.' },
+    loi_kiep:   { name: 'Thiên Lôi Kiếp', glyph: '雷', color: '#e8e4da', cost: 28, cd: 11, dmg: 1.2,
+                  desc: 'Viết chữ Lôi ném vào yêu thú: trên đầu nó hiện đám mây mực bám theo, liên tục giáng sét trắng đánh xuống trong 5 giây.' },
+    nhat_lenh:  { name: 'Nhất Lệnh Định Giang Sơn', glyph: '定', color: '#e8e4da', cost: 40, cd: 14, dmg: 1.4,
+                  desc: 'Bày bàn cờ vây mực quanh mục tiêu, viết chữ Định ném xuống tâm bàn cờ trấn trụ địch; từ mây trên trời, hai ngón tay kẹp quân cờ đen đặt mạnh xuống đúng chỗ mục tiêu.' },
     giang_son:  { name: 'Giang Sơn Lưỡng Nghi Đồ', glyph: '龍', color: '#e8e4da', cost: 55, cd: 20, dmg: 1.5,
                   desc: 'Tuyệt kỹ: mở trận thái cực lưỡng nghi dưới chân, viết thư pháp chữ Long giữa không trung, ném chữ vào địch; núi thuỷ mặc giáng xuống trấn áp mục tiêu, hai con rồng mực từ mây lao tới xé tan.' },
     phi_long:   { name: 'Phi Long Tại Thiên', glyph: '龍', color: '#ffd34d', cost: 50, cd: 18,  dmg: 5.5,

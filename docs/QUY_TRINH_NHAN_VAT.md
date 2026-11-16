@@ -14,7 +14,7 @@ Mục **9. Việc còn dang dở** liệt kê những phần chưa xong để ho
   - làm hiệu ứng chiêu thức (code + beanfx + pixelfx).
 - **Không sao chép tạo hình nhân vật của game khác** (ví dụ Tu Tiên Ký), kể cả cắt khung từ video. Chỉ dùng ảnh tự tạo hoặc tài nguyên có giấy phép.
 - Một nhân vật = **dạng gốc (base form)**. Trang phục, vũ khí thay đổi sau bằng hệ thống trang bị (mục 7).
-- **Bộ động tác chung (chốt 13/11/2026):** mọi nhân vật cơ bản, kể cả các tông môn khác, có **đúng bộ động tác của Kiếm Tu** (mục 3: cùng tên động tác, số khung, khung chạm, 8 hướng). Giữa các nhân vật chỉ khác:
+- **Bộ động tác chung (chốt lại 16/11/2026, theo Đạo Gia):** mọi nhân vật sau làm **đúng như Đạo Gia** (`dao_ai`): chỉ vẽ **4 hàng** đứng, chạy, đánh, thi pháp × 5 hướng; trúng đòn, ngã, bay do code (mục 3). Giữa các nhân vật chỉ khác:
   - **ngoại hình** (thân, y phục, vật cầm tay);
   - **vật cưỡi khi ngự kiếm/phi hành** (Kiếm Tu cưỡi kiếm; tông môn khác cưỡi vật riêng).
 
@@ -81,18 +81,28 @@ Game dùng **8 hướng**, chỉ cần vẽ **5 hướng** bên phải:
 
 Ba hướng bên trái lấy bằng lật ngang. Hướng nào thiếu ảnh thì công cụ mượn hướng gần nhất.
 
-**Động tác của game** (tên trong `rig.json`):
+**Bộ động tác chuẩn (chốt 16/11/2026, mẫu: Đạo Gia `dao_ai`)**: mỗi nhân vật mới chỉ cần **20 ảnh Gemini** = 4 hàng × 5 hướng, mỗi hàng 6 khung.
 
-| Tên | Nguồn | Ghi chú |
+| Động tác (`rig.json`) | Ảnh cần vẽ | Cách làm |
 |---|---|---|
-| `idle` | hàng đứng, 6 khung, lặp | |
-| `run` | hàng chạy, 6 khung, lặp | |
-| `attack1` / `attack2` / `attack3` | đòn 1, 2, 3 (đang tạm dùng chung đòn 1) | có "khung chạm" (contact) để gây sát thương đúng lúc |
-| `cast` | thi pháp **khung 1–2**: tay bắt ấn trước ngực, giữ nguyên | dùng khi tụ lực, thi pháp nhanh, thiền |
-| `cast_point` | thi pháp **khung 3–6**: tay chỉ thẳng | dùng lúc phóng chiêu |
-| `hurt` | 3 khung của hàng trúng đòn | |
-| `dead` | hàng ngã, giữ chuyển động rơi | |
-| `fly_up` / `fly` / `fly_land` | cất cánh / bay / hạ cánh | xem mục 6 |
+| `idle` | hàng đứng `<k>_<hướng>_idle` | 6 khung thở nhẹ, lặp |
+| `run` | hàng chạy `<k>_<hướng>_run` | chạy bộ nhẹ, **không nhảy**, chân luân phiên (mô tả chân theo bên trên ảnh) |
+| `attack1` / `2` / `3` | hàng đánh `<k>_<hướng>_attack` | 6 khung, khung chạm riêng mỗi nhân vật (`DAO_CONTACT`); đòn 2, 3 tạm mượn đòn 1 |
+| `cast` | hàng thi pháp, **khung 1–2** | tụ chiêu (giữ khi vận chiêu, thiền) |
+| `cast_point` | hàng thi pháp, **khung 3–6** | phát chiêu (ném / chỉ / vung) |
+| `hurt` | **không vẽ** | cờ `noHurt`: giữ tư thế, đẩy lùi + chớp đỏ + mất máu |
+| `dead` | **không vẽ** | cờ `simpleDeath`: đổ nằm ngang xuống đất (xoay quanh chân), vũ khí ẩn |
+| `fly_up` / `fly` / `fly_land` | **không vẽ** | dùng hàng đứng; cờ `mount`: vũ khí phóng to nằm dưới chân, mũi theo hướng bay, đặt giữa hai bàn chân |
+
+**Cách vẽ (bắt buộc cho nhân vật mới):**
+
+1. **Tạo hình:** một ảnh đạt về tạo hình → **bảng xoay** 5 tư thế đứng → cắt ra ảnh mẫu 5 hướng (mục 2). Rồi nhờ Gemini **xoá vũ khí** khỏi bảng xoay → ảnh mẫu **không vũ khí** (`_ref_nb`).
+2. **Ảnh mẫu khổ rộng 3:1** (`_ref_nb_wide`): nhân vật ở 1/6 bên trái, để Gemini vẽ đủ 6 khung nhỏ.
+3. **Cách B cho mọi hàng:** Gemini vẽ **tay không**, tay cầm vũ khí **nắm chặt như cầm chuôi vô hình**, tay kia mở; **code vẽ vũ khí** (lớp vũ khí, `tools/mark_dao_brush.py` làm mẫu: bảng `HAND` = nắm tay + góc vũ khí từng khung). Vẽ vũ khí trong ảnh thì Gemini đổi tay / bỏ mất vũ khí.
+4. **Tay cầm vũ khí:** thẳng, ngang, sau lưng = tay trái thật; **hai hướng chéo = tay phải thật** (SE: tay xa, bên trái ảnh; NE: bên phải ảnh), vì Gemini luôn ra đòn bằng tay này ở góc chéo. Tay cầm vũ khí = tay ra đòn.
+5. **Câu lệnh sinh bằng script** (mẫu `tools/gen_cau_lenh_dao.py`): câu tả tạo hình, quy tắc tay, khung giống nhau từng chữ giữa các hướng.
+6. **Đóng gói:** `SETS[...]` trong `ai_sheet.py` theo mẫu `_dao_set()` (`DAO_ROWS`, `DAO_FIX`, `DAO_FLIP`, `DAO_CONTACT`, `stand_px`, `rig_flags` có `noHurt`, `simpleDeath`, `mount`). Trình đóng gói tự xoá dấu sao Gemini và vạch đất.
+7. **Chiêu thức:** viết bằng code (`src/skill_*.js`), mẫu là 3 chiêu Đạo Gia: tụ chiêu bằng `cast` → phát bằng `cast_point`; **camera tự lùi ra** cho thấy trọn chiêu rồi trả lại (`camAim` / `camTrack`); chiêu lớn có hiệu ứng nhiều lớp (quầng sáng ADD, vòng sóng, loé màn hình, rung, khựng hình).
 
 ## 4. Đóng gói vào game
 
@@ -228,10 +238,15 @@ Ba hướng bên trái lấy bằng lật ngang. Hướng nào thiếu ảnh th�
   - **Tay cầm bút = tay viết** ở mọi động tác (người dùng chốt). Ở **hai hướng chéo** bút ở **tay phải thật** của nhân vật, vì Gemini luôn viết/ném bằng tay này ở góc chéo: **SE** = tay xa (bên trái ảnh), **NE** = bên phải ảnh. Thẳng, ngang, sau lưng giữ tay trái thật. Phải vẽ lại `dao_se_idle`, `dao_se_run`, `dao_se_cast` theo câu lệnh mới; `dao_se_attack` hiện có đã đúng. Hàng đánh sau lưng lấy ảnh lật ngang (`DAO_FLIP`). `dao_ne_attack` giữ (đúng tay phải); `dao_ne_idle` đổi bút sang tay phải bằng `REGRIP` trong `mark_dao_brush.py`; `dao_ne_run`, `dao_ne_cast` đã vẽ lại (14/11). Còn: vẽ lại `dao_ne_idle` theo cách B nếu muốn bút rõ hơn.
   - [x] Hàng thi pháp `cast` 5 hướng + bút (13/11/2026), đã vào game (`cast` = khung 1–2 tụ chiêu, `cast_point` = khung 3–6 ném). Sau lưng lấy ảnh lật (`DAO_FLIP`). Chiêu hiện vẫn mượn hiệu ứng Pháp Tu; làm bộ chiêu chữ riêng sau.
   - [x] **Chiêu O: Giang Sơn Lưỡng Nghi Đồ** (`src/skill_giang_son.js`, id `giang_son`, thay `hoa_lien` ở ô O của `nho`; 14/11/2026): tụ chiêu 3,4 giây trên trận thái cực lưỡng nghi (vẽ code, phối cảnh), 18 nét mực bay lên tụ thành chữ 龍 trước mặt; ném chữ, trúng thì núi thuỷ mặc giáng xuống đè mục tiêu (bất động, tô xám qua `e.frozenTint`); hai mây thuỷ mặc chếch trên cao hai bên, hai rồng mực bổ xuống xuyên qua mục tiêu, núi vỡ thành mực. Toàn bộ trắng đen. Bản 3 (14/11): trận pháp bán kính 110 (gấp ~2 bản đầu); mây hiện cùng trận pháp, to bằng trận; rồng bay ra từ mây và ngoạm vào mục tiêu (dừng, lắc đầu, tan thành mực); rồng nối đốt (đầu `gs_dhead` + 44 lát thân `gs_dbody` cắt từ kim long) bay theo đường bézier lượn từ mây xuống, thân bám vết đầu; camera tự lùi ra vừa khung chiêu (`camAim`) rồi trả lại; mây = xoáy mây Vạn Kiếm Quy Tông, rồng = kim long Phi Long Tại Thiên, đều đổi sang màu mực, núi vẽ lại bằng numpy: tất cả do `tools/make_giang_son_fx.py` tạo vào `assets/fx/giang_son/`, `boot.js` nạp qua `giang_son.json`.
-  - [ ] Các hàng còn lại theo ưu tiên: `hurt`, `dead` → `fly` → `atk2`, `atk3`. Có ảnh mới thì thêm hướng vào `DAO_ROWS[<động tác>]` rồi đóng gói lại.
+  - [x] **Không vẽ trúng đòn, ngã** (người dùng chốt 16/11/2026): cờ `rig_flags` (`noHurt`, `simpleDeath`) trong `SETS["dao_ai"]` ghi vào `rig.json`. Trúng đòn: giữ tư thế, chỉ đẩy lùi + chớp đỏ + mất máu (`world.hurtPlayer`). Chết: `world.playerDown` xoay nhân vật nằm ngang (xoay quanh bàn chân), lớp vũ khí tự ẩn khi nhân vật xoay.
+  - [x] **Bay không vẽ riêng** (người dùng chốt 16/11/2026): `fly*` dùng hàng đứng; cờ `mount` trong `rig.json` cho lớp vũ khí (`WeaponLayer.syncMount`) vẽ bút `dao_but` phóng to nằm dưới chân (đặt giữa hai bàn chân: `mount.foot` do `ai_sheet.py` đo từng hướng), mũi theo hướng bay, lớn dần theo độ cao khi cất/hạ cánh; bút trên tay ẩn khi bay.
+  - [x] **Chiêu U: Thiên Lôi Kiếp** (`src/skill_thien_loi.js`, id **`loi_kiep`** vì `thien_loi` đã là Thiên Lôi Dẫn của Pháp Tu; thay `loi_than` ở ô U của `nho`; 16/11/2026): viết chữ 雷 (1,1 giây), ném vào yêu thú gần nhất; trên đầu nó hiện mây mực (`gs_cloud`) bám theo, 5,2 giây liên tục giáng sét trắng viền mực (mỗi ~0,42 giây), mục tiêu chết thì mây chuyển sang yêu thú gần đó.
+  - [x] **Chiêu I: Nhất Lệnh Định Giang Sơn** (`src/skill_nhat_lenh.js`, id `nhat_lenh`, thay `tinh_long` ở ô I của `nho`; 16/11/2026): bàn cờ vây 9×9 mực trên mặt đất lấy mục tiêu làm tâm + mây mực trên trời; viết chữ 定 (12 nét mực tụ lại) rồi ném, chữ in xuống tâm bàn cờ, mục tiêu bất động 1,8 giây; từ mây (lệch sang bên) một bàn tay đưa chéo xuống ấn quân cờ đen vào mục tiêu (ảnh tay do Gemini vẽ: `dao/dao_hand.png`, `make_giang_son_fx.py` tách nền, chuyển tông mực, ghi tâm quân cờ + bề rộng tay áo vào `giang_son.json`; tay áo nối lên mây vẽ bằng code); bàn cờ có 18 quân trắng đen của ván dở, bàn cờ loé sáng, sóng mực chạy theo đường kẻ. Camera tự lùi ra như chiêu O.
+  - [ ] Còn lại: `atk2`, `atk3` (đòn 2, 3 hiện mượn đòn 1). Có ảnh mới thì thêm hướng vào `DAO_ROWS[<động tác>]` rồi đóng gói lại.
   - [x] **Lớp bút** cho hàng đứng, chạy, đánh (13/11/2026): `tools/mark_dao_brush.py` ghi `dao/brush_marks.json` (toạ độ ảnh nguồn). Hàng cách B: bảng `HAND` (nắm tay + góc bút, đặt tay theo lưới `rowgrid`). Hàng đứng cách A có bút vẽ sẵn: bảng `PAINTED` (xoá bút cũ, vẽ lại bút mới ở nắm tay, cờ `draw_len`/`draw_grip` trong `ai_sheet.weapon_cell`). Dò tự động (`weapon_detect.detect`) bắt nhầm tóc, không dùng. Khi thêm hàng mới: thêm dòng vào `HAND`, chạy `mark_dao_brush.py` rồi `ai_sheet.py dao_ai`. Chưa ổn: bút hướng thẳng hơi khuất sau tay áo; chưa có lớp bàn tay đè lên chuôi (bút nằm trên nắm tay).
   - Trình đóng gói thêm: `stand_px` (chiều cao đứng đích trong khung, vì ảnh mỗi bộ một cỡ; Đạo Gia 82 do mũ cao) và `unmark` (tự xoá dấu sao Gemini ở góc dưới phải, `remove_gemini_mark`).
 
+- [ ] **Độc Tu** (`doc_ai`, đang làm, 16/11/2026): nam tu sĩ lấy độc nhập đạo, vẻ âm u bí ẩn (tím than, xanh rêu, mắt xanh độc, hoa văn rết/rắn). Vũ khí **độc phiến**: cầm = quạt gấp (lớp vũ khí như bút), bay = quạt xoè lớn làm vật cưỡi. Câu lệnh: `docs/CAU_LENH_DOC_TU.md`, ảnh lưu `doc/`. Đã xong: tạo hình, bảng xoay → ảnh mẫu `doc_<hướng>_ref(_nb)(_wide).png` (công cụ chung `tools/cut_turnaround.py`), quạt gấp → `assets/weapons/doc_quat.png` (id `doc_quat`). **Vật cưỡi khi bay đổi thành độc xà xanh hai sừng** (người dùng chốt, rắn cũng dùng trong chiêu): `doc/doc_ran.png` → `assets/weapons/doc_ran.png` (id `doc_ran`, nhìn ngang, đầu bên phải); khi đóng gói đặt `rig_flags.mount = {weapon: 'doc_ran', len: ~90, thick: ~27}`. `casters.js` giờ nạp cả ảnh vật cưỡi. Đánh thường (chốt): phẩy quạt bắn 3 độc châm toả quạt, nhiễm độc. **Đã vào game (16/11/2026)** thành tông môn thứ 6 `doc` (data.js, mượn 5 chiêu Pháp Tu): hàng đứng 5 hướng + quạt (`tools/mark_doc_fan.py` → `doc/fan_marks.json`, dò nắm tay theo da xám tái), bay trên độc xà. `ai_sheet.py` có hàm chung **`std_set()`** cho mọi nhân vật theo bộ động tác chuẩn (Đạo Gia và Độc Tu đều dùng); Độc Tu khai báo bằng `DOC_ROWS`. Hàng chạy 5 hướng + quạt xong (quạt cầm dựng lên, người dùng chốt). Hàng đánh 5 hướng + quạt + **đánh xa trong game** (16/11): `world.needleShot` 3 độc châm toả quạt (đòn 3: 5 mũi), trúng thì `world.poisonEnemy` (mất máu mỗi 0,5 giây, tối đa 3 tầng, ánh xanh, bong bóng độc). Đánh sau lưng lật ảnh (`flip`), khung trúng đòn 1 = khung 4. Hàng thi pháp 5 hướng + quạt xong (sau lưng lật ảnh). **Đủ 4 hàng động tác.** Vật cưỡi: độc xà 5 ảnh theo hướng (`tools/make_doc_mount.py`, `mount.dirs`; hai hướng chéo xoay từ ảnh dọc), người đứng giữa thân. **Chiêu O: Vạn Độc Trận** (`src/skill_van_doc.js`, id `van_doc`): kết độc trận (ngũ giác, 5 chữ ngũ độc), 5,2 giây liên tục gọi ngũ độc (ảnh Gemini `doc/doc_ngudoc.png` → `assets/fx/doc/ngudoc_0..4.png` bằng `tools/make_doc_fx.py`) nhảy vòng cung cắn yêu thú + nhiễm độc, kết bằng vòng độc. Còn: 4 chiêu K L U I. Câu lệnh 4 hàng × 5 hướng: `docs/CAU_LENH_DOC_TU_DONG_TAC.md` (sinh bằng `tools/gen_cau_lenh_doc.py`).
 - [ ] Các tông môn khác:
   - Nho Đạo (bút + quyển trục tre);
   - Quỷ Tu (cờ phiên);

@@ -1,0 +1,45 @@
+{
+ "note": "Ngũ độc cho chiêu Vạn Độc Trận (src/skill_van_doc.js). Tạo bằng tools/make_doc_fx.py",
+ "ngudoc": [
+  {
+   "key": "ngudoc_0",
+   "img": "doc/ngudoc_0.png",
+   "w": 179,
+   "h": 71,
+   "frames": 6,
+   "name": "ran"
+  },
+  {
+   "key": "ngudoc_1",
+   "img": "doc/ngudoc_1.png",
+   "w": 96,
+   "h": 46,
+   "frames": 6,
+   "name": "ret"
+  },
+  {
+   "key": "ngudoc_2",
+   "img": "doc/ngudoc_2.png",
+   "w": 71,
+   "h": 66,
+   "frames": 6,
+   "name": "bocap"
+  },
+  {
+   "key": "ngudoc_3",
+   "img": "doc/ngudoc_3.png",
+   "w": 93,
+   "h": 56,
+   "frames": 6,
+   "name": "coc"
+  },
+  {
+   "key": "ngudoc_4",
+   "img": "doc/ngudoc_4.png",
+   "w": 86,
+   "h": 67,
+   "frames": 6,
+   "name": "nhen"
+  }
+ ]
+}

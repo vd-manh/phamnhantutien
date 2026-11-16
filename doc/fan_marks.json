@@ -1,0 +1,1565 @@
+{
+ "note": "Quạt Độc Tu, toạ độ ảnh nguồn. Tạo bằng tools/mark_doc_fan.py",
+ "marks": {
+  "front/idle/0": {
+   "grip": [
+    57,
+    246
+   ],
+   "tip": [
+    16.4,
+    194.0
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "front/idle/1": {
+   "grip": [
+    221,
+    246
+   ],
+   "tip": [
+    180.4,
+    194.0
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "front/idle/2": {
+   "grip": [
+    397,
+    246
+   ],
+   "tip": [
+    356.4,
+    194.0
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "front/idle/3": {
+   "grip": [
+    566,
+    246
+   ],
+   "tip": [
+    525.4,
+    194.0
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "front/idle/4": {
+   "grip": [
+    737,
+    246
+   ],
+   "tip": [
+    696.4,
+    194.0
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "front/idle/5": {
+   "grip": [
+    913,
+    246
+   ],
+   "tip": [
+    872.4,
+    194.0
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "s_idle/idle/0": {
+   "grip": [
+    131,
+    207
+   ],
+   "tip": [
+    151.4,
+    144.2
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "s_idle/idle/1": {
+   "grip": [
+    303,
+    207
+   ],
+   "tip": [
+    323.4,
+    144.2
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "s_idle/idle/2": {
+   "grip": [
+    474,
+    207
+   ],
+   "tip": [
+    494.4,
+    144.2
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "s_idle/idle/3": {
+   "grip": [
+    643,
+    207
+   ],
+   "tip": [
+    663.4,
+    144.2
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "s_idle/idle/4": {
+   "grip": [
+    813,
+    207
+   ],
+   "tip": [
+    833.4,
+    144.2
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "s_idle/idle/5": {
+   "grip": [
+    982,
+    207
+   ],
+   "tip": [
+    1002.4,
+    144.2
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "e_idle/idle/0": {
+   "grip": [
+    117,
+    201
+   ],
+   "tip": [
+    148.0,
+    142.7
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "e_idle/idle/1": {
+   "grip": [
+    287,
+    203
+   ],
+   "tip": [
+    318.0,
+    144.7
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "e_idle/idle/2": {
+   "grip": [
+    456,
+    203
+   ],
+   "tip": [
+    487.0,
+    144.7
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "e_idle/idle/3": {
+   "grip": [
+    625,
+    202
+   ],
+   "tip": [
+    656.0,
+    143.7
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "e_idle/idle/4": {
+   "grip": [
+    795,
+    203
+   ],
+   "tip": [
+    826.0,
+    144.7
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "e_idle/idle/5": {
+   "grip": [
+    960,
+    201
+   ],
+   "tip": [
+    991.0,
+    142.7
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "ne_idle/idle/0": {
+   "grip": [
+    133,
+    242
+   ],
+   "tip": [
+    164.0,
+    183.7
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "ne_idle/idle/1": {
+   "grip": [
+    304,
+    242
+   ],
+   "tip": [
+    335.0,
+    183.7
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "ne_idle/idle/2": {
+   "grip": [
+    474,
+    242
+   ],
+   "tip": [
+    505.0,
+    183.7
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "ne_idle/idle/3": {
+   "grip": [
+    643,
+    245
+   ],
+   "tip": [
+    674.0,
+    186.7
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "ne_idle/idle/4": {
+   "grip": [
+    812,
+    242
+   ],
+   "tip": [
+    843.0,
+    183.7
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "ne_idle/idle/5": {
+   "grip": [
+    980,
+    244
+   ],
+   "tip": [
+    1011.0,
+    185.7
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "n_idle/idle/0": {
+   "grip": [
+    36,
+    214
+   ],
+   "tip": [
+    18.9,
+    150.2
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "n_idle/idle/1": {
+   "grip": [
+    201,
+    251
+   ],
+   "tip": [
+    183.9,
+    187.2
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "n_idle/idle/2": {
+   "grip": [
+    372,
+    251
+   ],
+   "tip": [
+    354.9,
+    187.2
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "n_idle/idle/3": {
+   "grip": [
+    543,
+    253
+   ],
+   "tip": [
+    525.9,
+    189.2
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "n_idle/idle/4": {
+   "grip": [
+    702,
+    253
+   ],
+   "tip": [
+    684.9,
+    189.2
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "n_idle/idle/5": {
+   "grip": [
+    872,
+    250
+   ],
+   "tip": [
+    854.9,
+    186.2
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "se_run/run/0": {
+   "grip": [
+    53,
+    243
+   ],
+   "tip": [
+    12.4,
+    191.0
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "se_run/run/1": {
+   "grip": [
+    240,
+    238
+   ],
+   "tip": [
+    199.4,
+    186.0
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "se_run/run/2": {
+   "grip": [
+    404,
+    238
+   ],
+   "tip": [
+    363.4,
+    186.0
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "se_run/run/3": {
+   "grip": [
+    568,
+    240
+   ],
+   "tip": [
+    527.4,
+    188.0
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "se_run/run/4": {
+   "grip": [
+    731,
+    242
+   ],
+   "tip": [
+    690.4,
+    190.0
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "se_run/run/5": {
+   "grip": [
+    899,
+    238
+   ],
+   "tip": [
+    858.4,
+    186.0
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "s_run/run/0": {
+   "grip": [
+    128,
+    205
+   ],
+   "tip": [
+    148.4,
+    142.2
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "s_run/run/1": {
+   "grip": [
+    302,
+    247
+   ],
+   "tip": [
+    322.4,
+    184.2
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "s_run/run/2": {
+   "grip": [
+    476,
+    212
+   ],
+   "tip": [
+    496.4,
+    149.2
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "s_run/run/3": {
+   "grip": [
+    645,
+    247
+   ],
+   "tip": [
+    665.4,
+    184.2
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "s_run/run/4": {
+   "grip": [
+    817,
+    213
+   ],
+   "tip": [
+    837.4,
+    150.2
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "s_run/run/5": {
+   "grip": [
+    988,
+    205
+   ],
+   "tip": [
+    1008.4,
+    142.2
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "e_run/run/0": {
+   "grip": [
+    126,
+    192
+   ],
+   "tip": [
+    157.0,
+    133.7
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "e_run/run/1": {
+   "grip": [
+    294,
+    203
+   ],
+   "tip": [
+    325.0,
+    144.7
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "e_run/run/2": {
+   "grip": [
+    471,
+    186
+   ],
+   "tip": [
+    502.0,
+    127.7
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "e_run/run/3": {
+   "grip": [
+    650,
+    198
+   ],
+   "tip": [
+    681.0,
+    139.7
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "e_run/run/4": {
+   "grip": [
+    813,
+    191
+   ],
+   "tip": [
+    844.0,
+    132.7
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "e_run/run/5": {
+   "grip": [
+    973,
+    208
+   ],
+   "tip": [
+    1004.0,
+    149.7
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "ne_run/run/0": {
+   "grip": [
+    145,
+    136
+   ],
+   "tip": [
+    176.0,
+    77.7
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "ne_run/run/1": {
+   "grip": [
+    313,
+    143
+   ],
+   "tip": [
+    344.0,
+    84.7
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "ne_run/run/2": {
+   "grip": [
+    483,
+    131
+   ],
+   "tip": [
+    514.0,
+    72.7
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "ne_run/run/3": {
+   "grip": [
+    655,
+    140
+   ],
+   "tip": [
+    686.0,
+    81.7
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "ne_run/run/4": {
+   "grip": [
+    825,
+    136
+   ],
+   "tip": [
+    856.0,
+    77.7
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "ne_run/run/5": {
+   "grip": [
+    997,
+    144
+   ],
+   "tip": [
+    1028.0,
+    85.7
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "n_run/run/0": {
+   "grip": [
+    45,
+    200
+   ],
+   "tip": [
+    27.9,
+    136.2
+   ],
+   "behind": true,
+   "noerase": true,
+   "by": "claude"
+  },
+  "n_run/run/1": {
+   "grip": [
+    212,
+    152
+   ],
+   "tip": [
+    194.9,
+    88.2
+   ],
+   "behind": true,
+   "noerase": true,
+   "by": "claude"
+  },
+  "n_run/run/2": {
+   "grip": [
+    378,
+    196
+   ],
+   "tip": [
+    360.9,
+    132.2
+   ],
+   "behind": true,
+   "noerase": true,
+   "by": "claude"
+  },
+  "n_run/run/3": {
+   "grip": [
+    578,
+    170
+   ],
+   "tip": [
+    560.9,
+    106.2
+   ],
+   "behind": true,
+   "noerase": true,
+   "by": "claude"
+  },
+  "n_run/run/4": {
+   "grip": [
+    715,
+    196
+   ],
+   "tip": [
+    697.9,
+    132.2
+   ],
+   "behind": true,
+   "noerase": true,
+   "by": "claude"
+  },
+  "n_run/run/5": {
+   "grip": [
+    886,
+    149
+   ],
+   "tip": [
+    868.9,
+    85.2
+   ],
+   "behind": true,
+   "noerase": true,
+   "by": "claude"
+  },
+  "se_attack/attack/0": {
+   "grip": [
+    124,
+    190
+   ],
+   "tip": [
+    146.6,
+    128.0
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "se_attack/attack/1": {
+   "grip": [
+    204,
+    150
+   ],
+   "tip": [
+    181.4,
+    88.0
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "se_attack/attack/2": {
+   "grip": [
+    486,
+    160
+   ],
+   "tip": [
+    551.0,
+    171.5
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "se_attack/attack/3": {
+   "grip": [
+    653,
+    187
+   ],
+   "tip": [
+    715.0,
+    209.6
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "se_attack/attack/4": {
+   "grip": [
+    829,
+    183
+   ],
+   "tip": [
+    891.0,
+    205.6
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "se_attack/attack/5": {
+   "grip": [
+    987,
+    191
+   ],
+   "tip": [
+    1009.6,
+    129.0
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "s_attack/attack/0": {
+   "grip": [
+    165,
+    295
+   ],
+   "tip": [
+    185.4,
+    232.2
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "s_attack/attack/1": {
+   "grip": [
+    305,
+    252
+   ],
+   "tip": [
+    293.5,
+    187.0
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "s_attack/attack/2": {
+   "grip": [
+    499,
+    265
+   ],
+   "tip": [
+    561.0,
+    242.4
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "s_attack/attack/3": {
+   "grip": [
+    670,
+    263
+   ],
+   "tip": [
+    735.0,
+    251.5
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "s_attack/attack/4": {
+   "grip": [
+    833,
+    266
+   ],
+   "tip": [
+    898.0,
+    254.5
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "s_attack/attack/5": {
+   "grip": [
+    1000,
+    295
+   ],
+   "tip": [
+    1020.4,
+    232.2
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "e_attack/attack/0": {
+   "grip": [
+    125,
+    154
+   ],
+   "tip": [
+    158.0,
+    96.8
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "e_attack/attack/1": {
+   "grip": [
+    294,
+    197
+   ],
+   "tip": [
+    305.5,
+    132.0
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "e_attack/attack/2": {
+   "grip": [
+    480,
+    161
+   ],
+   "tip": [
+    545.0,
+    149.5
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "e_attack/attack/3": {
+   "grip": [
+    653,
+    162
+   ],
+   "tip": [
+    718.7,
+    156.2
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "e_attack/attack/4": {
+   "grip": [
+    831,
+    199
+   ],
+   "tip": [
+    896.0,
+    210.5
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "e_attack/attack/5": {
+   "grip": [
+    976,
+    187
+   ],
+   "tip": [
+    1009.0,
+    129.8
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "ne_attack/attack/0": {
+   "grip": [
+    245,
+    272
+   ],
+   "tip": [
+    276.0,
+    213.7
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "ne_attack/attack/1": {
+   "grip": [
+    565,
+    268
+   ],
+   "tip": [
+    596.0,
+    209.7
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "ne_attack/attack/2": {
+   "grip": [
+    885,
+    292
+   ],
+   "tip": [
+    951.0,
+    292.0
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "ne_attack/attack/3": {
+   "grip": [
+    1192,
+    228
+   ],
+   "tip": [
+    1242.6,
+    185.6
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "ne_attack/attack/4": {
+   "grip": [
+    1471,
+    326
+   ],
+   "tip": [
+    1536.0,
+    337.5
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "ne_attack/attack/5": {
+   "grip": [
+    1744,
+    295
+   ],
+   "tip": [
+    1775.0,
+    236.7
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "n_attack/attack/0": {
+   "grip": [
+    133,
+    207
+   ],
+   "tip": [
+    150.1,
+    143.2
+   ],
+   "behind": true,
+   "noerase": true,
+   "by": "claude"
+  },
+  "n_attack/attack/1": {
+   "grip": [
+    314,
+    153
+   ],
+   "tip": [
+    325.5,
+    88.0
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "n_attack/attack/2": {
+   "grip": [
+    512,
+    155
+   ],
+   "tip": [
+    562.6,
+    112.6
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "n_attack/attack/3": {
+   "grip": [
+    660,
+    100
+   ],
+   "tip": [
+    665.8,
+    34.3
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "n_attack/attack/4": {
+   "grip": [
+    838,
+    240
+   ],
+   "tip": [
+    855.1,
+    176.2
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "n_attack/attack/5": {
+   "grip": [
+    991,
+    206
+   ],
+   "tip": [
+    1008.1,
+    142.2
+   ],
+   "behind": true,
+   "noerase": true,
+   "by": "claude"
+  },
+  "se_cast/cast/0": {
+   "grip": [
+    129,
+    207
+   ],
+   "tip": [
+    151.6,
+    145.0
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "se_cast/cast/1": {
+   "grip": [
+    296,
+    195
+   ],
+   "tip": [
+    318.6,
+    133.0
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "se_cast/cast/2": {
+   "grip": [
+    487,
+    186
+   ],
+   "tip": [
+    520.0,
+    128.8
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "se_cast/cast/3": {
+   "grip": [
+    647,
+    221
+   ],
+   "tip": [
+    706.8,
+    248.9
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "se_cast/cast/4": {
+   "grip": [
+    839,
+    205
+   ],
+   "tip": [
+    902.8,
+    222.1
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "se_cast/cast/5": {
+   "grip": [
+    990,
+    239
+   ],
+   "tip": [
+    1012.6,
+    177.0
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "s_cast/cast/0": {
+   "grip": [
+    67,
+    147
+   ],
+   "tip": [
+    87.4,
+    84.2
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "s_cast/cast/1": {
+   "grip": [
+    260,
+    147
+   ],
+   "tip": [
+    280.4,
+    84.2
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "s_cast/cast/2": {
+   "grip": [
+    399,
+    138
+   ],
+   "tip": [
+    387.5,
+    73.0
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "s_cast/cast/3": {
+   "grip": [
+    609,
+    144
+   ],
+   "tip": [
+    629.4,
+    81.2
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "s_cast/cast/4": {
+   "grip": [
+    753,
+    148
+   ],
+   "tip": [
+    741.5,
+    83.0
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "s_cast/cast/5": {
+   "grip": [
+    931,
+    182
+   ],
+   "tip": [
+    951.4,
+    119.2
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "e_cast/cast/0": {
+   "grip": [
+    138,
+    176
+   ],
+   "tip": [
+    171.0,
+    118.8
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "e_cast/cast/1": {
+   "grip": [
+    304,
+    161
+   ],
+   "tip": [
+    337.0,
+    103.8
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "e_cast/cast/2": {
+   "grip": [
+    462,
+    183
+   ],
+   "tip": [
+    519.2,
+    150.0
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "e_cast/cast/3": {
+   "grip": [
+    640,
+    172
+   ],
+   "tip": [
+    706.0,
+    172.0
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "e_cast/cast/4": {
+   "grip": [
+    834,
+    177
+   ],
+   "tip": [
+    900.0,
+    177.0
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "e_cast/cast/5": {
+   "grip": [
+    980,
+    203
+   ],
+   "tip": [
+    1013.0,
+    145.8
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "ne_cast/cast/0": {
+   "grip": [
+    134,
+    180
+   ],
+   "tip": [
+    165.0,
+    121.7
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "ne_cast/cast/1": {
+   "grip": [
+    306,
+    177
+   ],
+   "tip": [
+    337.0,
+    118.7
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "ne_cast/cast/2": {
+   "grip": [
+    480,
+    162
+   ],
+   "tip": [
+    511.0,
+    103.7
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "ne_cast/cast/3": {
+   "grip": [
+    650,
+    140
+   ],
+   "tip": [
+    700.6,
+    97.6
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "ne_cast/cast/4": {
+   "grip": [
+    830,
+    135
+   ],
+   "tip": [
+    887.2,
+    102.0
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "ne_cast/cast/5": {
+   "grip": [
+    985,
+    194
+   ],
+   "tip": [
+    1016.0,
+    135.7
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "n_cast/cast/0": {
+   "grip": [
+    143,
+    195
+   ],
+   "tip": [
+    160.1,
+    131.2
+   ],
+   "behind": true,
+   "noerase": true,
+   "by": "claude"
+  },
+  "n_cast/cast/1": {
+   "grip": [
+    313,
+    200
+   ],
+   "tip": [
+    330.1,
+    136.2
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "n_cast/cast/2": {
+   "grip": [
+    482,
+    179
+   ],
+   "tip": [
+    499.1,
+    115.2
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "n_cast/cast/3": {
+   "grip": [
+    650,
+    100
+   ],
+   "tip": [
+    655.8,
+    34.3
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "n_cast/cast/4": {
+   "grip": [
+    850,
+    166
+   ],
+   "tip": [
+    867.1,
+    102.2
+   ],
+   "behind": false,
+   "noerase": true,
+   "by": "claude"
+  },
+  "n_cast/cast/5": {
+   "grip": [
+    993,
+    261
+   ],
+   "tip": [
+    1010.1,
+    197.2
+   ],
+   "behind": true,
+   "noerase": true,
+   "by": "claude"
+  }
+ }
+}

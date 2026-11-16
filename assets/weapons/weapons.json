@@ -26,6 +26,117 @@
     13.5
    ],
    "source": "dao/dao_brush.png (Gemini), tách nền, thu về rộng 180; grip ngay sau đốc ngọc. Dùng cho bút cầm tay và vật cưỡi của Đạo Gia"
+  },
+  "doc_quat": {
+   "name": "U Minh Độc Phiến",
+   "img": "doc_quat.png",
+   "grip": [
+    26,
+    9.5
+   ],
+   "tip": [
+    149,
+    10.0
+   ],
+   "source": "doc/doc_quat_gap.png (Gemini), quạt gấp; grip ngay sau đốc ngọc. Vũ khí cầm tay của Độc Tu"
+  },
+  "doc_ran": {
+   "name": "Song Giác Độc Xà",
+   "img": "doc_ran.png",
+   "grip": [
+    0,
+    30.0
+   ],
+   "tip": [
+    200,
+    30.0
+   ],
+   "source": "doc/doc_ran.png (Gemini), rắn độc xanh hai sừng, nhìn ngang, đầu bên phải. Vật cưỡi khi bay + dùng trong chiêu của Độc Tu"
+  },
+  "doc_ran_south": {
+   "name": "Song Giác Độc Xà",
+   "img": "doc_ran_south.png",
+   "grip": [
+    0,
+    0
+   ],
+   "tip": [
+    46,
+    0
+   ],
+   "stand": [
+    13.0,
+    74.0
+   ],
+   "source": "tools/make_doc_mount.py (doc/doc_ran_*.png, Gemini)"
+  },
+  "doc_ran_south-east": {
+   "name": "Song Giác Độc Xà",
+   "img": "doc_ran_south-east.png",
+   "grip": [
+    0,
+    0
+   ],
+   "tip": [
+    92,
+    0
+   ],
+   "stand": [
+    38.0,
+    66.0
+   ],
+   "source": "tools/make_doc_mount.py (doc/doc_ran_*.png, Gemini)"
+  },
+  "doc_ran_east": {
+   "name": "Song Giác Độc Xà",
+   "img": "doc_ran_east.png",
+   "grip": [
+    0,
+    0
+   ],
+   "tip": [
+    200,
+    0
+   ],
+   "stand": [
+    94.0,
+    36.0
+   ],
+   "source": "tools/make_doc_mount.py (doc/doc_ran_*.png, Gemini)"
+  },
+  "doc_ran_north-east": {
+   "name": "Song Giác Độc Xà",
+   "img": "doc_ran_north-east.png",
+   "grip": [
+    0,
+    0
+   ],
+   "tip": [
+    127,
+    0
+   ],
+   "stand": [
+    67.0,
+    57.0
+   ],
+   "source": "tools/make_doc_mount.py (doc/doc_ran_*.png, Gemini)"
+  },
+  "doc_ran_north": {
+   "name": "Song Giác Độc Xà",
+   "img": "doc_ran_north.png",
+   "grip": [
+    0,
+    0
+   ],
+   "tip": [
+    130,
+    0
+   ],
+   "stand": [
+    61.0,
+    71.0
+   ],
+   "source": "tools/make_doc_mount.py (doc/doc_ran_*.png, Gemini)"
   }
  }
 }

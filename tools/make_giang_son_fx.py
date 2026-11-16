@@ -171,24 +171,65 @@ def make_mountain(W=150, H=128, seed=7):
     return [np.dstack([canvas[..., :3], canvas[..., 3] * 255]).astype(np.uint8)]
 
 
+
+# ---------------- bàn tay từ mây: tay áo trắng, hai ngón (trỏ + giữa) duỗi chúc xuống kẹp quân cờ đen (chiêu Nhất Lệnh)
+def make_hand(H=112):
+    """Bàn tay đặt cờ (ảnh Gemini dao/dao_hand.png): tách nền trắng, thu nhỏ, chuyển tông thuỷ mặc
+    (da -> trắng ngà, bóng -> xám mực, viền giữ đen; viền vàng cổ tay giữ lại). Trả thêm meta: tâm quân cờ, bề rộng tay áo ở mép trên."""
+    src = os.path.join(ROOT, "dao", "dao_hand.png")
+    im = np.array(Image.open(src).convert("RGB")).astype(int)
+    near = (im.min(2) > 236).astype(np.uint8)
+    n, lab = cv2.connectedComponents(near)
+    edge = set(lab[0]) | set(lab[-1]) | set(lab[:, 0]) | set(lab[:, -1])
+    bg = np.isin(lab, [e for e in edge if near[lab == e].any()])
+    fg = ~bg
+    ys, xs = np.where(fg)
+    y0, y1, x0, x1 = ys.min(), ys.max() + 1, xs.min(), xs.max() + 1
+    rgba = np.dstack([im, np.where(fg, 255, 0)]).astype(np.uint8)[y0:y1, x0:x1]
+    k = H / rgba.shape[0]
+    small = np.array(Image.fromarray(rgba, "RGBA").resize((max(1, round(rgba.shape[1] * k)), H), Image.LANCZOS))
+    small[..., 3] = np.where(small[..., 3] > 110, 255, 0)
+    rgb = small[..., :3].astype(float) / 255
+    L = 0.299 * rgb[..., 0] + 0.587 * rgb[..., 1] + 0.114 * rgb[..., 2]
+    # giữ màu thật của ảnh (da hồng hào, áo ngà): người dùng chê bản đổi sang trắng đen là "trắng bệch"
+    res = small.copy()
+    # tâm quân cờ: mảng tối lớn nhất ở 1/4 dưới ảnh
+    dark = (L < 0.25) & (small[..., 3] > 0)
+    dark[: int(H * 0.72)] = False
+    yy, xx = np.where(dark)
+    stone = [round(float(xx.mean()), 1), round(float(yy.mean()), 1)]
+    top = np.where(small[0, :, 3] > 0)[0]
+    # màu tay áo (mép trên ảnh) để game vẽ phần tay áo nối lên mây cho khớp
+    row = small[1:4, top.min() + 3:top.max() - 3][..., :3].reshape(-1, 3)
+    light = row[row.mean(1) > 150]
+    sc = light.mean(0) if len(light) else np.array([240, 234, 214])
+    shade = sc * 0.82
+    hexc = lambda c: int(c[0]) << 16 | int(c[1]) << 8 | int(c[2])
+    meta = {"stone": stone, "sleeve": [int(top.min()), int(top.max())], "sleeveColor": hexc(sc), "sleeveShade": hexc(shade)}
+    return [res], meta
+
+
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     os.makedirs(OUT, exist_ok=True)
     meta = {}
     dr = make_dragon()
     head, body = make_dragon_parts(dr)
+    hand, hmeta = make_hand()
     for key, fn in (("gs_cloud", make_cloud), ("gs_dragon", lambda: dr), ("gs_dhead", lambda: head),
-                    ("gs_dbody", lambda: body), ("gs_mountain", make_mountain)):
+                    ("gs_dbody", lambda: body), ("gs_mountain", make_mountain), ("gs_hand", lambda: hand)):
         fr = fn()
         h, w = fr[0].shape[:2]
         Image.fromarray(strip(fr)).save(os.path.join(OUT, key + ".png"), optimize=True)
         meta[key] = {"img": "giang_son/" + key + ".png", "w": w, "h": h, "frames": len(fr)}
+        if key == "gs_hand":
+            meta[key].update(hmeta)
         print(key, w, "x", h, len(fr), "khung")
-    meta["note"] = "Tạo bằng tools/make_giang_son_fx.py. Dùng trong src/skill_giang_son.js"
+    meta["note"] = "Tạo bằng tools/make_giang_son_fx.py. Dùng trong src/skill_giang_son.js, src/skill_nhat_lenh.js"
     json.dump(meta, open(os.path.join(OUT, "giang_son.json"), "w", encoding="utf8"), ensure_ascii=False, indent=1)
     if "--preview" in sys.argv:
         pv = sys.argv[sys.argv.index("--preview") + 1]
-        for key in ("gs_cloud", "gs_dragon", "gs_dhead", "gs_dbody", "gs_mountain"):
+        for key in ("gs_cloud", "gs_dragon", "gs_dhead", "gs_dbody", "gs_mountain", "gs_hand"):
             im = Image.open(os.path.join(OUT, key + ".png")).convert("RGBA")
             bg = Image.new("RGBA", im.size, (62, 123, 58, 255)); bg.alpha_composite(im)
             bg.resize((im.width * 2, im.height * 2), Image.NEAREST).save(os.path.join(pv, "pv_" + key + ".png"))

@@ -229,6 +229,8 @@ for k, d in D.items():
         done = " — **xong** (cách A, ảnh mẫu `" + d['ref'].replace('_ref.png', '_ref_wide.png') + "`)" if name == "idle" and k != "se" else ""
         if (k, name) in (("se", "idle"), ("se", "run"), ("ne", "run"), ("ne", "cast")):
             done = " — **vẽ lại** (đổi bút sang tay xa)"
+        if name in ("hurt", "dead"):
+            continue                        # không cần (16/11/2026): game tự đẩy lùi khi trúng đòn, tự cho nằm ngang khi chết
         w(f"#### `dao/dao_{k}_{name}.png` (ưu tiên {pri}){done}\n")
         w("```\n" + prompt(d, name, body) + "\n```\n")
 open(OUT, "w", encoding="utf8").write("\n".join(L))

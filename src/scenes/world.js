@@ -123,6 +123,7 @@ TT.WorldScene = class extends Phaser.Scene {
     this.time.addEvent({ delay: 1600, loop: true, callback: () => this.spawnEnemy() });
     this.time.addEvent({ delay: 5000, loop: true, callback: () => TT.Save.save(this.s) });
     for (let i = 0; i < 4; i++) this.spawnEnemy();
+    this.spawnDummy();                                       // mộc nhân thử chiêu cạnh linh tuyền
     this._onUnload = () => TT.Save.save(this.s);
     window.addEventListener('beforeunload', this._onUnload);
     this.events.once('shutdown', () => window.removeEventListener('beforeunload', this._onUnload));
@@ -943,6 +944,13 @@ TT.WorldScene = class extends Phaser.Scene {
     const strike = () => {
       if (this.dead) return;
       const hx = p.x + dx * reach, hy = p.y - this.pH * 0.45 + dy * reach;
+      if (this.cls === 'doc') {                                     // Độc Tu: phẩy quạt bắn độc châm toả quạt, trúng thì nhiễm độc
+        const spread = big ? [-0.36, -0.18, 0, 0.18, 0.36] : [-0.2, 0, 0.2];
+        spread.forEach(da => this.needleShot(hx, hy, ang + da, big));
+        TT.FX.burst(this, hx, hy, [0x7dff9a, 0x3cff7a, 0x9b5cff], big ? 10 : 6, 50);
+        TT.SFX.slash(false);
+        return;
+      }
       if (this.cls === 'nho') {                                     // Đạo Gia: vẽ chữ trên không, bắn hạt mực trắng đen đi xa
         const shots = big ? [-0.28, 0, 0.28] : [0];
         shots.forEach(da => this.inkShot(hx, hy, ang + da, big));
@@ -994,6 +1002,73 @@ TT.WorldScene = class extends Phaser.Scene {
   }
 
   // Đạo Gia: một chùm hạt năng lượng trắng đen bay thẳng, trúng yêu thú đầu tiên trên đường (đánh xa)
+  // Độc Tu: một mũi độc châm bay thẳng, trúng yêu thú đầu tiên trên đường thì gây sát thương + nhiễm độc
+  needleShot(x, y, ang, big) {
+    if (!this.textures.exists('doc_needle')) {
+      // kim độc: thân xanh lục sáng, mũi trắng, đuôi tím (vẽ một lần)
+      const g = this.make.graphics({ add: false });
+      g.fillStyle(0x9b5cff, 1).fillRect(0, 2, 3, 2);
+      g.fillStyle(0x2fd66a, 1).fillRect(3, 2, 8, 2);
+      g.fillStyle(0x9dffb8, 1).fillRect(5, 2, 5, 1);
+      g.fillStyle(0xffffff, 1).fillRect(11, 2, 3, 2);
+      g.fillStyle(0xffffff, 1).fillRect(14, 3, 1, 1);
+      g.generateTexture('doc_needle', 15, 6);
+      g.destroy();
+    }
+    const dx = Math.cos(ang), dy = Math.sin(ang), range = big ? 160 : 130, speed = 340;
+    const dmg = this.st.atk * (big ? 0.55 : 0.4);
+    const n = this.add.image(x, y, 'doc_needle').setRotation(ang).setDepth(6100).setScale(1.2);
+    const glow = this.add.image(x, y, 'dot').setTint(0x3cff7a).setScale(2.2).setAlpha(0.45)
+      .setBlendMode(Phaser.BlendModes.ADD).setDepth(6099);
+    let t = 0, done = false;
+    const finish = (hx, hy, hit) => {
+      if (done) return;
+      done = true; ev.remove();
+      if (hit) TT.FX.burst(this, hx, hy, [0x7dff9a, 0x3cff7a, 0x9b5cff], 6, 60);
+      [n, glow].forEach(o => this.tweens.add({ targets: o, alpha: 0, duration: 100, onComplete: () => o.destroy() }));
+    };
+    const ev = this.time.addEvent({ delay: 16, loop: true, callback: () => {
+      t += 16;
+      const d = Math.min(range, speed * t / 1000), cx = x + dx * d, cy = y + dy * d;
+      n.setPosition(cx, cy); glow.setPosition(cx, cy);
+      for (const e of this.enemies.getChildren()) {
+        if (!e.active || e.dying) continue;
+        if (Phaser.Math.Distance.Between(cx, cy, e.x, e.y - 5) > 11) continue;
+        this.damageEnemy(e, dmg * Phaser.Math.FloatBetween(0.9, 1.1), { kx: dx, ky: dy, force: 40 });
+        this.poisonEnemy(e, this.st.atk * 0.12, big ? 3600 : 3000);
+        finish(cx, cy, true);
+        return;
+      }
+      if (d >= range) finish(cx, cy, false);
+    }});
+  }
+
+  // nhiễm độc: mỗi 0,5 giây mất máu (không đẩy lùi, không khựng), thân ánh xanh tím, bong bóng độc bốc lên;
+  // trúng thêm thì làm mới thời gian và cộng dồn tối đa 3 tầng
+  poisonEnemy(e, tickDmg, ms) {
+    const now = this.time.now;
+    e.poisonUntil = now + ms;
+    e.poisonStacks = Math.min(3, (e.poisonStacks || 0) + 1);
+    e.poisonDmg = tickDmg;
+    if (e.poisonEv) return;
+    e.poisonEv = this.time.addEvent({ delay: 500, loop: true, callback: () => {
+      if (!e.active || e.dying || this.time.now > e.poisonUntil) {
+        if (e.poisonEv) e.poisonEv.remove();
+        e.poisonEv = null; e.poisonStacks = 0;
+        if (e.active && e.poisonTint) { e.clearTint(); e.poisonTint = false; }
+        return;
+      }
+      const dmg = Math.max(1, Math.round(e.poisonDmg * e.poisonStacks));
+      e.hp -= dmg;
+      TT.FX.text(this, e.x + Phaser.Math.Between(-4, 4), e.y - 12, String(dmg), '#7dff9a');
+      if (!e.timeTint) { e.setTint(0x9cff7a); e.poisonTint = true; }
+      const b = this.add.image(e.x + Phaser.Math.Between(-5, 5), e.y - 6, 'dot').setTint(0x7dff9a).setScale(1.4)
+        .setBlendMode(Phaser.BlendModes.ADD).setDepth(e.depth + 1);
+      this.tweens.add({ targets: b, y: b.y - 12, alpha: 0, scale: 0.4, duration: 500, onComplete: () => b.destroy() });
+      if (e.hp <= 0) this.killEnemy(e);
+    }});
+  }
+
   inkShot(x, y, ang, big) {
     const dx = Math.cos(ang), dy = Math.sin(ang), range = big ? 150 : 120, speed = 260;
     const dmg = this.st.atk * (big ? 1.1 : 0.85);
@@ -1087,6 +1162,7 @@ TT.WorldScene = class extends Phaser.Scene {
   }
 
   killEnemy(e) {
+    if (e.dummy) { e.hp = e.maxHp; return; }             // mộc nhân không bao giờ chết
     e.dying = true;
     e.body.enable = false;
     this.tweens.killTweensOf(e);
@@ -1141,11 +1217,64 @@ TT.WorldScene = class extends Phaser.Scene {
     }
   }
 
+  // ================= MỘC NHÂN THỬ CHIÊU =================
+  // cọc gỗ đứng yên cạnh linh tuyền: chịu mọi đòn (nằm trong nhóm yêu thú), không di chuyển, không đánh trả, không chết;
+  // trên đầu hiện sát thương mỗi giây (trung bình 3 giây gần nhất) và tổng sát thương của chuỗi đòn
+  spawnDummy() {
+    if (!this.textures.exists('dummy')) {
+      const g = this.make.graphics({ add: false });
+      g.fillStyle(0x3a2412, 1).fillRect(9, 12, 4, 22);                   // cọc
+      g.fillStyle(0x8a5a2b, 1).fillRect(10, 12, 2, 22);
+      g.fillStyle(0x3a2412, 1).fillRect(1, 15, 20, 4);                   // tay ngang
+      g.fillStyle(0x9c6a35, 1).fillRect(2, 16, 18, 2);
+      g.fillStyle(0x3a2412, 1).fillRoundedRect(5, 13, 12, 13, 3);        // thân quấn rơm
+      g.fillStyle(0xd9b45c, 1).fillRoundedRect(6, 14, 10, 11, 3);
+      g.lineStyle(1, 0x9c7a32, 1); [16, 19, 22].forEach(y => g.lineBetween(6, y, 16, y));
+      g.fillStyle(0xc0392b, 1).fillCircle(11, 19, 2.5);                  // hồng tâm
+      g.fillStyle(0xffffff, 1).fillCircle(11, 19, 1);
+      g.fillStyle(0x3a2412, 1).fillCircle(11, 7, 6);                     // đầu
+      g.fillStyle(0xd9b45c, 1).fillCircle(11, 7, 5);
+      g.fillStyle(0x3a2412, 1).fillRect(8, 6, 2, 1).fillRect(12, 6, 2, 1);
+      g.fillStyle(0x3a2412, 1).fillRect(6, 34, 10, 2);                   // đế
+      g.generateTexture('dummy', 22, 36);
+      g.destroy();
+    }
+    const x = this.spring.x + 150, y = this.spring.y + 50;
+    const e = this.enemies.create(x, y, 'dummy').setOrigin(0.5, 34 / 36);
+    e.body.setSize(14, 8).setOffset(4, 27);
+    e.body.moves = false; e.body.immovable = true;
+    e.dummy = true;
+    e.kind = { id: 'dummy', name: 'Mộc Nhân', tint: [0xd9b45c, 0x8a5a2b], orbs: [0, 0], orbVal: 0 };
+    e.maxHp = e.hp = 1e9; e.dmg = 0; e.speed = 0; e.orbVal = 0;
+    e.stunUntil = 0; e.aggro = false; e.dying = false;
+    e.log = []; e.lastHp = e.hp; e.comboT = 0; e.combo = 0;
+    e.shadow = this.add.image(x, y, 'shadow').setAlpha(0.3).setDepth(-900);
+    e.label = this.add.text(x, y - 44, 'Mộc Nhân', {
+      fontFamily: 'monospace', fontSize: '9px', color: '#ffe9a8', stroke: '#2a1a0a', strokeThickness: 3, align: 'center'
+    }).setOrigin(0.5, 1).setDepth(5000);
+    this.dummy = e;
+  }
+
+  updateDummy(e, time) {
+    e.setVelocity(0);
+    const lost = e.lastHp - e.hp;
+    if (lost > 0) {
+      e.log.push([time, lost]);
+      if (time - e.comboT > 3000) e.combo = 0;
+      e.combo += lost; e.comboT = time;
+      this.tweens.add({ targets: e, angle: { from: Phaser.Math.Between(-8, 8), to: 0 }, duration: 160 });   // lắc khi trúng đòn
+    }
+    e.hp = e.maxHp; e.lastHp = e.hp;
+    e.log = e.log.filter(l => time - l[0] < 3000);
+    const dps = Math.round(e.log.reduce((a, l) => a + l[1], 0) / 3);
+    e.label.setPosition(e.x, e.y - 40).setText('Mộc Nhân' + (dps ? `\nDPS ${dps}` : '') + (e.combo && time - e.comboT < 3000 ? `  Tổng ${Math.round(e.combo)}` : ''));
+  }
+
   // ================= YÊU THÚ =================
   spawnEnemy() {
     if (this.trib) return;
     const s = this.s, D = TT.DATA;
-    if (this.enemies.countActive(true) >= 4 + s.realm * 2) return;
+    if (this.enemies.countActive(true) - (this.dummy && this.dummy.active ? 1 : 0) >= 4 + s.realm * 2) return;
     const kinds = D.enemies.filter(k => k.minRealm <= s.realm);
     const kind = Math.random() < 0.6 ? kinds[kinds.length - 1] : kinds[(Math.random() * kinds.length) | 0];
     let x, y, ok = false;
@@ -1180,6 +1309,7 @@ TT.WorldScene = class extends Phaser.Scene {
       if (!e.active) return;
       e.setDepth(e.y);
       e.shadow.setPosition(e.x, e.y);
+      if (e.dummy) { this.updateDummy(e, time); return; }
       // làm chậm (Băng Phong Trận): phủ màu băng, giảm 60% tốc độ
       const slowed = time < (e.slowUntil || 0);
       if (slowed && !e.isTinted && !e.dying) { e.setTint(0x9fe8ff); e.frostTint = true; }
@@ -1203,6 +1333,14 @@ TT.WorldScene = class extends Phaser.Scene {
         e.setVelocity(sx / ds * spd, sy / ds * spd);
         return;
       }
+      // bị độc vật triệu hồi (Vạn Độc Trận) cắn: quay sang đuổi đánh con đó
+      const tb = e.taunt;
+      if (tb && tb.hp > 0 && time < e.tauntUntil) {
+        const tx = tb.x - e.x, ty = tb.y - e.y, td = Math.hypot(tx, ty) || 1;
+        if (td > 10) e.setVelocity(tx / td * spd, ty / td * spd); else e.setVelocity(0);
+        e.setFlipX(tx < 0);
+        return;
+      }
       if (!playerSafe && (dist < 130 || (e.aggro && dist < 260))) {
         e.setVelocity(dx / dist * spd, dy / dist * spd);
         e.setFlipX(dx < 0);
@@ -1219,6 +1357,7 @@ TT.WorldScene = class extends Phaser.Scene {
   }
 
   onTouchEnemy(e) {
+    if (e.dummy) return;
     if (e.dying || this.trib || this.dead || this.flying) return;   // bay trên cao: yêu thú không chạm tới
     if (this.time.now < (e.frozenUntil || 0)) return;              // yêu thú đang bất động
     const t = this.time.now;
@@ -1244,7 +1383,8 @@ TT.WorldScene = class extends Phaser.Scene {
     this.time.delayedCall(140, () => p.clearTint());
     TT.SFX.hurt();
     this.cameras.main.shake(100, 0.004);
-    if (this.useCaster && this.s.hp > 0 && !this.meditating && !this.flying && !this.flyBusy && !/attack|cast|fly/.test(this.animType)) {
+    // bộ không có ảnh trúng đòn (rig.noHurt): giữ nguyên tư thế, chỉ bị đẩy lùi + chớp đỏ + mất máu
+    if (this.useCaster && !TT.Caster.noHurt && this.s.hp > 0 && !this.meditating && !this.flying && !this.flyBusy && !/attack|cast|fly/.test(this.animType)) {
       this.playAnim('hurt');
       this.lockUntil = Math.max(this.lockUntil, this.time.now + 250);
     }
@@ -1259,7 +1399,15 @@ TT.WorldScene = class extends Phaser.Scene {
     const p = this.player, s = this.s;
     this.dead = true;
     if (this.flying || this.flyBusy || this.lift) this.land(this.time.now, true);
-    p.setVelocity(0); this.playAnim('dead'); p.setTint(0x999999);
+    p.setVelocity(0); p.setTint(0x999999);
+    if (this.useCaster && TT.Caster.simpleDeath) {
+      // bộ không có ảnh ngã: đứng yên rồi đổ nằm ngang xuống đất (xoay quanh bàn chân), ngả về phía sau lưng
+      this.playAnim('idle', true);
+      p.anims.stop();
+      const side = this.facing.x > 0.1 ? -1 : 1;
+      this.tweens.add({ targets: p, angle: 90 * side, duration: 420, ease: 'Bounce.easeOut' });
+      this.time.delayedCall(260, () => TT.FX.burst(this, p.x + side * 18, p.y - 2, [0xcfc8b8, 0x8a8a8a], 10, 50));
+    } else this.playAnim('dead');
     s.cult *= 0.8;
     TT.SFX.fail();
     TT.HUD.banner('TRỌNG THƯƠNG', 'Tu vi tổn hao 20%, được đưa về linh tuyền', '#ff8a8a');

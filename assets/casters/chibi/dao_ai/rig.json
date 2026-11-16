@@ -3686,6 +3686,23 @@
    }
   }
  },
+ "noHurt": 1,
+ "simpleDeath": 1,
+ "mount": {
+  "weapon": "dao_but",
+  "len": 64,
+  "thick": 11,
+  "foot": {
+   "east": 0.0,
+   "south-east": 4.0,
+   "south": -3.0,
+   "south-west": -5.0,
+   "west": -1.0,
+   "north-west": 1.0,
+   "north": -0.5,
+   "north-east": -2.0
+  }
+ },
  "weapon": {
   "default": "dao_but",
   "nominal": 23.8
